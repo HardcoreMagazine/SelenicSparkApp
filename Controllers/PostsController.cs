@@ -36,18 +36,18 @@ namespace SelenicSparkApp.Controllers
         // POST: Posts/SearchResults
         public async Task<IActionResult> SearchResults(string SearchPhrase, string Filter)
         {
-            if (Filter == "Titles") // Filter: Titles
+            if (Filter == "Titles")
             {
+                ViewBag.SearchPhrase = SearchPhrase;
+                ViewBag.Filter = Filter;
                 return _context.Post != null ?
-                    //View("Index", await _context.Post
                     View("Search", await _context.Post
                     .Where(p => p.PostTitle.Contains(SearchPhrase))
                     .ToListAsync()) : Problem("Entity set 'ApplicationDbContext.Post'  is null.");
             }
-            else if (Filter == "Text") // Filter: Text
+            else if (Filter == "Text")
             {
                 return _context.Post != null ?
-                    //View("Index", await _context.Post
                     View("Search", await _context.Post
                     .Where(p => p.PostText.Contains(SearchPhrase))
                     .ToListAsync()) : Problem("Entity set 'ApplicationDbContext.Post'  is null.");
@@ -55,7 +55,6 @@ namespace SelenicSparkApp.Controllers
             else // No filter - everything
             {
                 return _context.Post != null ?
-                    //View("Index", await _context.Post
                     View("Search", await _context.Post
                     .Where(p => p.PostTitle.Contains(SearchPhrase) || p.PostText.Contains(SearchPhrase))
                     .ToListAsync()) : Problem("Entity set 'ApplicationDbContext.Post'  is null.");
