@@ -1,0 +1,76 @@
+﻿@model IEnumerable<SelenicSparkApp.Models.Post>
+
+@{
+    ViewData["Title"] = "Search";
+}
+
+<style>
+    .form-control {
+        display: inline;
+        width: auto;
+    }
+    .btn-primary {
+        border-radius: 0.25rem;
+        block-size: 2.4rem;
+    }
+</style>
+
+<h3>Search posts</h3>
+<hr />
+<div class="row">
+    <div class="form-inline">
+        <form asp-action="SearchResults">
+            <div class="form-group">
+                <label for="SearchPhrase" class="control-label"></label>
+                <input name="SearchPhrase" class="form-control" size="48" maxlength="48" />
+                
+                <input type="submit" value="Find!" class="btn-primary" />
+                   
+                <br />
+                <input name="Filter" type="radio" id="titlesChoice" value="Titles" checked />
+                <label for="titlesChoice">Titles</label>
+
+                <input name="Filter" type="radio" id="textChoice" value="Text" />
+                <label for="textChoice">Text</label>
+
+                <input name="Filter" type="radio" id="everythingChoice" value="Everything" />
+                <label for="everythingChoice">Everything</label>
+            </div>
+        </form>
+    </div>
+</div>
+<br />
+<hr />
+@* TODO: save state of radio button *@
+@if (Model?.Count() > 0)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayName("Title")
+                </th>
+                <th>
+                    @Html.DisplayName("Text")
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.PostTitle)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.PostText)
+                    </td>
+                    <td>
+                        <a asp-action="Details" asp-route-id="@item.PostId">Details</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

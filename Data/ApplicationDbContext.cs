@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using SelenicSparkApp.Models;
 
 namespace SelenicSparkApp.Data
 {
@@ -9,5 +10,6 @@ namespace SelenicSparkApp.Data
             : base(options)
         {
         }
+        public DbSet<SelenicSparkApp.Models.Post> Post { get; set; } = default!;
     }
 }
