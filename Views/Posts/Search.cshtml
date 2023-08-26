@@ -22,28 +22,27 @@
         <form asp-action="SearchResults">
             <div class="form-group">
                 <label for="SearchPhrase" class="control-label"></label>
-                <input name="SearchPhrase" class="form-control" size="48" maxlength="48" />
+                <input name="SearchPhrase" class="form-control" size="48" maxlength="48" value="@ViewBag.SearchPhrase" />
                 
                 <input type="submit" value="Find!" class="btn-primary" />
-                   
                 <br />
-                <input name="Filter" type="radio" id="titlesChoice" value="Titles" checked />
+
+                <input name="Filter" type="radio" id="titlesChoice" value="Titles" @(ViewBag.Filter == "Titles" ? "checked" : "") />
                 <label for="titlesChoice">Titles</label>
 
-                <input name="Filter" type="radio" id="textChoice" value="Text" />
+                <input name="Filter" type="radio" id="textChoice" value="Text" @(ViewBag.Filter == "Text" ? "checked" : "") />
                 <label for="textChoice">Text</label>
 
-                <input name="Filter" type="radio" id="everythingChoice" value="Everything" />
+                <input name="Filter" type="radio" id="everythingChoice" value="Everything" @(ViewBag.Filter == "Everything" ? "checked" : "") />
                 <label for="everythingChoice">Everything</label>
             </div>
         </form>
     </div>
 </div>
-<br />
 <hr />
-@* TODO: save state of radio button *@
 @if (Model?.Count() > 0) @* Show all results if results.Count > 0 *@
 {
+    @* Temporal solution. Post feed must be scrollable and not in form of Table. *@
     <table class="table">
         <thead>
             <tr>

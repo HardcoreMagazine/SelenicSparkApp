@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SelenicSparkApp.Data;
@@ -30,16 +32,22 @@ namespace SelenicSparkApp.Controllers
         // GET: Posts/Search
         public async Task<IActionResult> Search()
         {
+            // Initialize input values
+            ViewBag.SearchPhrase = "";
+            ViewBag.Filter = "Titles";
             return View();
         }
 
         // POST: Posts/SearchResults
         public async Task<IActionResult> SearchResults(string SearchPhrase, string Filter)
         {
+            // Save-set last form state (works like magic)
+            // ViewBag would still reset if page is reloaded, obviously
+            // See './Views/Posts/Search.cshtml' for more
+            ViewBag.SearchPhrase = SearchPhrase;
+            ViewBag.Filter = Filter;
             if (Filter == "Titles")
             {
-                ViewBag.SearchPhrase = SearchPhrase;
-                ViewBag.Filter = Filter;
                 return _context.Post != null ?
                     View("Search", await _context.Post
                     .Where(p => p.PostTitle.Contains(SearchPhrase))
