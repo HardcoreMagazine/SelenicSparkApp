@@ -60,13 +60,10 @@
             {
                 <tr>
                     <td>
-                        @Html.DisplayFor(modelItem => item.PostTitle)
+                        <a asp-action="Details" asp-route-id="@item.PostId">@item.PostTitle</a>
                     </td>
                     <td>
                         @Html.DisplayFor(modelItem => item.PostText)
-                    </td>
-                    <td>
-                        <a asp-action="Details" asp-route-id="@item.PostId">Details</a>
                     </td>
                 </tr>
             }
@@ -75,6 +72,6 @@
 }
 else @if (Model != null) @* Show "not found" if search was called, but no results found *@
 {
-    <h4>No results found</h4>
+    <h4>Nope, nothing here.</h4>
 }
 @* "else": Show nothing when search wasn't called and page was just initialized *@
