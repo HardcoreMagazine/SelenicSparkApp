@@ -12,8 +12,8 @@ using SelenicSparkApp.Data;
 namespace SelenicSparkApp.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230826074852_InitialSetup")]
-    partial class InitialSetup
+    [Migration("20230826074852_PostSchema")]
+    partial class PostSchema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

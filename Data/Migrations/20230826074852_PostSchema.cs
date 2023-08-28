@@ -5,7 +5,7 @@
 namespace SelenicSparkApp.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialSetup : Migration
+    public partial class PostSchema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
