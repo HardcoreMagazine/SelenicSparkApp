@@ -1,10 +1,20 @@
 ﻿@page
-@model ExternalLoginsModel
+@* @model ExternalLoginsModel *@
 @{
-    ViewData["Title"] = "Manage your external logins";
+    ViewData["Title"] = "Manage external logins";
     ViewData["ActivePage"] = ManageNavPages.ExternalLogins;
 }
 
+<script>
+    setTimeout(function () {
+        window.location.href = "/Identity/Account/Manage";
+    }, 0);
+</script>
+<br />
+<h5>Redirecting... <a href="/Identity/Account/Manage">click here</a> if nothing happens</h5>
+
+@*
+// Uncomment this when adding 3rd party authentication ("Log-in with Google Account" and such)
 <partial name="_StatusMessage" for="StatusMessage" />
 @if (Model.CurrentLogins?.Count > 0)
 {
@@ -51,3 +61,4 @@
         </div>
     </form>
 }
+*@

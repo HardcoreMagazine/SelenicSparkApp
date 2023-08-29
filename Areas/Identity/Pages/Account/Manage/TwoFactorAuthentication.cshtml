@@ -2,12 +2,25 @@
 @using Microsoft.AspNetCore.Http.Features
 @model TwoFactorAuthenticationModel
 @{
-    ViewData["Title"] = "Two-factor authentication (2FA)";
+    ViewData["Title"] = "2FA";
     ViewData["ActivePage"] = ManageNavPages.TwoFactorAuthentication;
 }
 
+<style>
+    .btn-wide {
+        width: 11.555rem !important;
+    }
+    .btn-disabled {
+        border: 1px solid #999999;
+        background-color: #cccccc;
+        color: #666666;
+    }
+    .btn-disabled:hover {
+        color: #666666;
+    }
+</style>
+
 <partial name="_StatusMessage" for="StatusMessage" />
-<h3>@ViewData["Title"]</h3>
 @{
     var consentFeature = HttpContext.Features.Get<ITrackingConsentFeature>();
     @if (consentFeature?.CanTrack ?? true)
@@ -35,26 +48,60 @@
                     <p>You should <a asp-page="./GenerateRecoveryCodes">generate a new set of recovery codes</a>.</p>
                 </div>
             }
-
-            if (Model.IsMachineRemembered)
-            {
-                <form method="post" style="display: inline-block">
-                    <button type="submit" class="btn btn-primary">Forget this browser</button>
-                </form>
-            }
-            <a asp-page="./Disable2fa" class="btn btn-primary">Disable 2FA</a>
-            <a asp-page="./GenerateRecoveryCodes" class="btn btn-primary">Reset recovery codes</a>
         }
 
-        <h4>Authenticator app</h4>
-        @if (!Model.HasAuthenticator)
+        <div class="row">
+            <div class="col-md-6">
+                <h3>Two-factor authentication</h3>
+                <p>Enabling two-factor authentication (2FA) for your account is completely optional.</p>
+                <p>
+                    Two-factor authentication adds an additional layer of security to your account,
+                    but also binds you to use of specific device - if you lose that device, it could complicate the login process.
+                </p>
+            </div>
+        </div>
+
+        @* Not sure why ASP.NET MVC developers decided it's a good idea to 
+        sepearate users who never had 2FA enabled from rest of the database *@
+        @if (!Model.HasAuthenticator) 
         {
-            <a id="enable-authenticator" asp-page="./EnableAuthenticator" class="btn btn-primary">Add authenticator app</a>
+            <a id="enable-authenticator" asp-page="./EnableAuthenticator" class="btn btn-primary" style="width:23.4rem;">
+                Add 2FA
+            </a>
         }
         else
         {
-            <a id="enable-authenticator" asp-page="./EnableAuthenticator" class="btn btn-primary">Set up authenticator app</a>
-            <a id="reset-authenticator" asp-page="./ResetAuthenticator" class="btn btn-primary">Reset authenticator app</a>
+            @if (Model.Is2faEnabled)
+            {
+                <a class="btn btn-disabled btn-wide" title="You already have 2FA enabled">
+                    Add 2FA
+                </a>
+                <a id="reset-authenticator" asp-page="./ResetAuthenticator" class="btn btn-primary btn-wide" style="background-color:#cc0000;">
+                    Remove 2FA
+                </a>
+                <div style="padding-top: 0.3rem;">
+                    <a asp-page="./GenerateRecoveryCodes" class="btn btn-primary btn-wide" style="display: inline-block; background-color: darkorchid">
+                        Reset recovery codes
+                    </a>
+                    @if (Model.IsMachineRemembered)
+                    {
+                        <form method="post" style="display: inline-block">
+                            <button type="submit" class="btn btn-primary btn-wide" style="background-color: darkorchid">
+                                Forget this browser
+                            </button>
+                        </form>
+                    }
+                </div>
+            }
+            else
+            {
+                <a id="enable-authenticator" asp-page="./EnableAuthenticator" class="btn btn-primary btn-wide">
+                    Add 2FA
+                </a>
+                <a class="btn btn-disabled btn-wide" title="You don't have 2FA enabled">
+                    Remove 2FA
+                </a>
+            }
         }
     }
     else

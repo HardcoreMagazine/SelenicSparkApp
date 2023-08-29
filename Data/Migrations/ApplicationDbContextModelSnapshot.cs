@@ -232,6 +232,10 @@ namespace SelenicSparkApp.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PostId"));
 
+                    b.Property<string>("PostAuthor")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("PostText")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");

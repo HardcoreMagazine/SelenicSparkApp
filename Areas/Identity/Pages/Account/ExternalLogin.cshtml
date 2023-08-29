@@ -1,9 +1,18 @@
 ﻿@page
-@model ExternalLoginModel
+@* @model ExternalLoginModel *@
 @{
     ViewData["Title"] = "Register";
 }
+<script>
+    setTimeout(function () {
+        window.location.href = "/Identity/Account/Login";
+    }, 0);
+</script>
+<br />
+<h5>Redirecting... <a href="/Identity/Account/Login">click here</a> if nothing happens</h5>
 
+@*
+// Uncomment this when you connect 3rd party authentication (such as Google)
 <h1>@ViewData["Title"]</h1>
 <h2 id="external-login-title">Associate your @Model.ProviderDisplayName account.</h2>
 <hr />
@@ -31,3 +40,4 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
+*@

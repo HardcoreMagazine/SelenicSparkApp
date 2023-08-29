@@ -1,8 +1,16 @@
 ﻿@page
 @model ConfirmEmailModel
 @{
-    ViewData["Title"] = "Confirm email";
+    ViewData["Title"] = "Account confirmation";
 }
 
 <h1>@ViewData["Title"]</h1>
 <partial name="_StatusMessage" model="Model.StatusMessage" />
+
+<script>
+    setTimeout(function () {
+        window.location.href = "/Identity/Account/Login";
+    }, 2000); // INT -> ms to redirect
+</script>
+<br />
+<h5>Redirecting... <a href="/Identity/Account/Login">click here</a> if nothing happens</h5>

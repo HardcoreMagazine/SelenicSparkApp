@@ -12,7 +12,7 @@ using SelenicSparkApp.Data;
 namespace SelenicSparkApp.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230826074852_PostSchema")]
+    [Migration("20230829120658_PostSchema")]
     partial class PostSchema
     {
         /// <inheritdoc />
@@ -234,6 +234,10 @@ namespace SelenicSparkApp.Data.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PostId"));
+
+                    b.Property<string>("PostAuthor")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PostText")
                         .IsRequired()

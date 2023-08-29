@@ -17,7 +17,8 @@ namespace SelenicSparkApp.Data.Migrations
                     PostId = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     PostTitle = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    PostText = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    PostText = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PostAuthor = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {

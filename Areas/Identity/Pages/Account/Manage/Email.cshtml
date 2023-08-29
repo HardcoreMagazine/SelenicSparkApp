@@ -1,7 +1,7 @@
 ﻿@page
 @model EmailModel
 @{
-    ViewData["Title"] = "Manage Email";
+    ViewData["Title"] = "Change Email";
     ViewData["ActivePage"] = ManageNavPages.Email;
 }
 
@@ -21,8 +21,10 @@
                     <label asp-for="Email" class="form-label"></label>
                 </div>
             }
+            @*
+            // Uncomment this when you connect proper email service
             else
-            {
+            {          
                 <div class="form-floating mb-3">
                     <input asp-for="Email" class="form-control" placeholder="Please enter your email." disabled />
                     <label asp-for="Email" class="form-label"></label>
@@ -30,12 +32,28 @@
                 </div>
             }
             <div class="form-floating mb-3">
-                <input asp-for="Input.NewEmail" class="form-control" autocomplete="email" aria-required="true" placeholder="Please enter new email." />
+                <input asp-for="Input.NewEmail" class="form-control" autocomplete="off" aria-required="true" placeholder="Please enter new email." disabled/>
                 <label asp-for="Input.NewEmail" class="form-label"></label>
                 <span asp-validation-for="Input.NewEmail" class="text-danger"></span>
             </div>
-            <button id="change-email-button" type="submit" asp-page-handler="ChangeEmail" class="w-100 btn btn-lg btn-primary">Change email</button>
+            *@
+            <div class="form-floating mb-3">
+                <input class="form-control" autocomplete="off" aria-required="true" placeholder="Please enter new email." disabled />
+                <label class="form-label"></label>
+                <span class="text-danger"></span>
+            </div>
+            @*
+            // Uncomment this when you connect proper email service
+            <button id="change-email-button" type="submit" asp-page-handler="ChangeEmail" class="w-100 btn btn-lg btn-primary">
+                Change email
+            </button> 
+            *@
+            <button id="change-email-button" type="submit" class="w-100 btn btn-lg btn-primary" disabled>
+                Change email
+            </button>
         </form>
+        <br />
+        <p style="color:darkred">We're sorry, but email change is currently not supported.</p>
     </div>
 </div>
 

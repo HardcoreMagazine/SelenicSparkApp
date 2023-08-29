@@ -1,10 +1,14 @@
 ﻿@page
 @model LockoutModel
 @{
-    ViewData["Title"] = "Locked out";
+    ViewData["Title"] = "Account Locked";
 }
 
-<header>
-    <h1 class="text-danger">@ViewData["Title"]</h1>
-    <p class="text-danger">This account has been locked out, please try again later.</p>
+<header style="text-align:center; padding-top:14%;">
+    <h1 class="text-danger"><b>@ViewData["Title"]</b></h1>
+    <p class="text-danger" style="padding-top:10px;">
+        <b>This account has been temporarily banned</b>.
+        <br />
+        Contact site administrator at <a href="mailto:admin@selenicspark.org">admin@selenicspark.org</a> if you think it was a mistake.
+    </p>
 </header>

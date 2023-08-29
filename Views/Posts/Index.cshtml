@@ -1,7 +1,7 @@
 ﻿@model IEnumerable<SelenicSparkApp.Models.Post>
 
 @{
-    ViewData["Title"] = "Post feed";
+    ViewData["Title"] = "Index";
 }
 
 <p>
@@ -18,6 +18,9 @@
                 <th>
                     @Html.DisplayNameFor(model => model.PostText)
                 </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.PostAuthor)
+                </th>
                 <th></th>
             </tr>
         </thead>
@@ -32,6 +35,9 @@
                         @Html.DisplayFor(modelItem => item.PostText)
                     </td>
                     <td>
+                        @Html.DisplayFor(modelItem => item.PostAuthor)
+                    </td>
+                    <td>
                         <a asp-action="Edit" asp-route-id="@item.PostId">Edit</a> |
                         <a asp-action="Details" asp-route-id="@item.PostId">Details</a> |
                         <a asp-action="Delete" asp-route-id="@item.PostId">Delete</a>
@@ -40,7 +46,7 @@
             }
         </tbody>
     </table>
-} 
+}
 else
 {
     <h4>The database is empty!</h4>

@@ -23,6 +23,11 @@ namespace SelenicSparkApp.Controllers
             return View();
         }
 
+        public IActionResult Goodbye()
+        {
+            return View();
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error(int code)
         {

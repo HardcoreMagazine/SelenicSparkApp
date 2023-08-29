@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
+/* TODO: USER IDENTITY */
 namespace SelenicSparkApp.Areas.Identity.Pages.Account.Manage
 {
     public class IndexModel : PageModel
