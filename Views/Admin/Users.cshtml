@@ -1,1 +1,18 @@
 ﻿@* HERE GOES USER MANAGEMENT *@
+
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+
+@{
+    ViewData["Title"] = "Admin";
+}
+
+@if (SignInManager.IsSignedIn(User))
+{
+    @if (User.IsInRole("Admin")) // Triple-checking never hurt anyone
+    {
+        <div>
+            Hello, @User.Identity?.Name!
+        </div>
+    }
+}
