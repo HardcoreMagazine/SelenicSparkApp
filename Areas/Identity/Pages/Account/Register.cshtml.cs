@@ -18,6 +18,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using NuGet.Protocol;
 
 namespace SelenicSparkApp.Areas.Identity.Pages.Account
 {
@@ -64,12 +65,21 @@ namespace SelenicSparkApp.Areas.Identity.Pages.Account
         /// </summary>
         public IList<AuthenticationScheme> ExternalLogins { get; set; }
 
+        [TempData]
+        public string RegStatusMessage { get; set; }
+
         /// <summary>
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
         public class InputModel
         {
+            [Required]
+            [StringLength(24, ErrorMessage = "{0} must be {2} to {1} characters long.", MinimumLength = 4)]
+            [DataType(DataType.Text)]
+            [Display(Name = "Username")]
+            public string UserName { get; set;}
+
             /// <summary>
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
@@ -84,7 +94,7 @@ namespace SelenicSparkApp.Areas.Identity.Pages.Account
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
             [Required]
-            [StringLength(96, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
+            [StringLength(64, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
             [DataType(DataType.Password)]
             [Display(Name = "Password")]
             public string Password { get; set; }
@@ -99,8 +109,32 @@ namespace SelenicSparkApp.Areas.Identity.Pages.Account
             public string ConfirmPassword { get; set; }
         }
 
+        /// <summary>
+        /// Checks user name validity: it must not be equal to email and must not be empty or contain only whitespaces
+        /// </summary>
+        /// <returns>true if username is valid, else - false</returns>
+        private async Task<bool> CheckUserNameValidAsync()
+        {
+            if (await _userManager.FindByNameAsync(Input.UserName) == null)
+            {
+                if (Input.UserName != Input.Email & !string.IsNullOrWhiteSpace(Input.UserName))
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         public async Task OnGetAsync(string returnUrl = null)
         {
+            RegStatusMessage = ""; // Reset error message if page was closed (does not effect page Reload)
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
         }
@@ -113,7 +147,19 @@ namespace SelenicSparkApp.Areas.Identity.Pages.Account
             {
                 var user = CreateUser();
 
-                await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
+                // -- Double-check username, set it if valid --
+                if (!await CheckUserNameValidAsync())
+                {
+                    RegStatusMessage = 
+                        $"Error: " +
+                        $"Username \"{Input.UserName}\" is already taken or not valid. " +
+                        $"Username must be 4 to 24 characters long and consist of " +
+                        $"alphabetic and/or special charaters and/or numbers.";
+                    return Page();
+                }
+
+                await _userStore.SetUserNameAsync(user, Input.UserName, CancellationToken.None);
+                
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
                 var result = await _userManager.CreateAsync(user, Input.Password);
 
@@ -132,6 +178,9 @@ namespace SelenicSparkApp.Areas.Identity.Pages.Account
 
                     await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                         $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
+
+                    // ------- Asssign default role "User" to user -------
+                    await _userManager.AddToRoleAsync(user, "User");
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
                     {

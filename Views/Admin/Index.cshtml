@@ -1,0 +1,23 @@
+﻿@* HERE GOES THE ADMIN PANEL *@
+@* HERE GOES SERVER LOGS *@
+
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+@{
+    ViewData["Title"] = "Admin";
+}
+
+@if (SignInManager.IsSignedIn(User))
+{
+    @if (User.IsInRole("Admin")) // Triple-checking never hurt anyone
+    {
+        <div>
+            Hello, Admin!
+        </div>
+        <a href="/Admin/Users">Manage userbase</a>
+    }
+}
+
+@* HERE GOES PARIAL POSTS FEED: "HOT" OR "NEW" POSTS ONLY*@

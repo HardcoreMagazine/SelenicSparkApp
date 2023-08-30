@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using SelenicSparkApp.CustomClasses;
 using SelenicSparkApp.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +13,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddRoles<IdentityRole>()
+    .AddSignInManager<EmailSignInManager>() // Custom sign-in manager
     .AddEntityFrameworkStores<ApplicationDbContext>();
 
 builder.Services.AddControllersWithViews();
@@ -37,6 +39,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+//app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
@@ -59,28 +62,30 @@ using (var scope = app.Services.CreateScope())
 
     // Assign roles to base users (such as "admin@selenicspark.org")
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
-    // Would highly recommend storing logins in separate file and accesing them programmatically
+    // * Would highly recommend storing logins in separate file and accesing them programmatically
     // Remember to follow password guidelines when creating password
     // [default]: A-Z + a-z + numbers + special characters
-    Tuple<string, string, string>[] baseUsers = new Tuple<string, string, string>[]
+    // Tuple<...> here: username, email, password, role
+    Tuple<string, string, string, string>[] baseUsers = new[]
     {
-        new Tuple<string, string, string>("admin@selenicspark.org", "123456aA_", roles[0]),
+        new Tuple<string,string,string,string> ("CaptainSelenicSpark", "admin@selenicspark.org", "123456aA_", roles[0]),
     };
     
     for (int j = 0; j < baseUsers.Length; j++)
     {
-        if (await userManager.FindByEmailAsync(baseUsers[j].Item1) == null)
+        if (await userManager.FindByEmailAsync(baseUsers[j].Item2) == null)
         {
             var user = new IdentityUser()
             {
                 UserName = baseUsers[j].Item1,
-                Email = baseUsers[j].Item1,
-                EmailConfirmed = true // ----------- DANGER ZONE ----------- //
+                Email = baseUsers[j].Item2,
+                
+                EmailConfirmed = true // ----------- DANGER ZONE -----------
             };
 
-            await userManager.CreateAsync(user, baseUsers[j].Item2);
+            await userManager.CreateAsync(user, baseUsers[j].Item3);
 
-            await userManager.AddToRoleAsync(user, baseUsers[j].Item3);
+            await userManager.AddToRoleAsync(user, baseUsers[j].Item4);
         }
     }
 }
