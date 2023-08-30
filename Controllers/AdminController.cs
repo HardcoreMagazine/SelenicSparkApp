@@ -24,5 +24,12 @@ namespace SelenicSparkApp.Controllers
         {
             return View();
         }
+
+        // POST: /Users - edit
+        [HttpPost]
+        public ActionResult UsersUpdate()
+        {
+            return View();
+        }
     }
 }

@@ -1,11 +1,8 @@
-﻿@* HERE GOES THE ADMIN PANEL *@
-@* HERE GOES SERVER LOGS *@
-
-@using Microsoft.AspNetCore.Identity
+﻿@using Microsoft.AspNetCore.Identity
 @inject SignInManager<IdentityUser> SignInManager
 
 @{
-    ViewData["Title"] = "Admin";
+    ViewData["Title"] = "Admin panel";
 }
 
 @if (SignInManager.IsSignedIn(User))
@@ -13,10 +10,17 @@
     @if (User.IsInRole("Admin")) // Triple-checking never hurt anyone
     {
         <div>
-            Hello, @User.Identity?.Name!
+            <h1 style="text-align:center;">
+                Hello, @User.Identity?.Name
+            </h1>
+            <hr />
+            <a href="/Admin/Users">
+                Manage users
+            </a>
+            <hr />
+            <p>
+                Here goes the server log
+            </p>
         </div>
-        <a href="/Admin/Users">Manage userbase</a>
     }
 }
-
-@* HERE GOES PARIAL POSTS FEED: "HOT" OR "NEW" POSTS ONLY*@

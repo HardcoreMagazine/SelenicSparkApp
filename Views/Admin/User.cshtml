@@ -1,0 +1,16 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<IdentityUser> SignInManager
+
+@{
+    ViewData["Title"] = "User edit";
+}
+
+@if (SignInManager.IsSignedIn(User))
+{
+    @if (User.IsInRole("Admin")) // Triple-checking never hurt anyone
+    {
+        <div>
+            User editing form here
+        </div>
+    }
+}
