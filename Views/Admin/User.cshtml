@@ -3,7 +3,7 @@
 @inject SignInManager<IdentityUser> SignInManager
 
 @{
-    ViewData["Title"] = "User edit";
+    ViewData["Title"] = "Edit user";
 }
 
 @if (SignInManager.IsSignedIn(User))
@@ -34,7 +34,7 @@
                     <span asp-validation-for="EmailConfirmed"></span>
                 </div>
                 <div class="form-group">
-                    <label asp-for="LockoutEnd" class="control-label">Ban until (leave empty to un-ban)</label>
+                    <label asp-for="LockoutEnd" class="control-label">Ban until [mm-dd-yyyy] (set empty to unban)</label>
                     <input asp-for="LockoutEnd" class="form-control" autocomplete="off" type="date"/>
                     <span asp-validation-for="LockoutEnd" class="text-danger"></span>
                 </div>

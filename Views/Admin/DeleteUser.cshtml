@@ -1,0 +1,70 @@
+﻿@using Microsoft.AspNetCore.Identity;
+@inject SignInManager<IdentityUser> SignInManager
+@inject UserManager<IdentityUser> UserManager
+
+@model IdentityUser
+@{
+    ViewData["Title"] = "Delete user";
+}
+
+@if (SignInManager.IsSignedIn(User))
+{
+    @if (User.IsInRole("Admin")) // Triple-checking never hurt anyone
+    {
+        <h1>Deleting user</h1>
+        <h3>Are you sure you want to delete this user's account?</h3>
+        <div>
+            <hr />
+            <dl class="row">
+                <dt class="col-sm-2">ID</dt> @* dt - title *@
+                <dd class="col-sm-10">@Model.Id</dd> @* dd - value *@
+
+                <dt class="col-sm-2">Username</dt>
+                <dd class="col-sm-10">@Model.UserName</dd>
+
+                <dt class="col-sm-2">Role(s)</dt>
+                <dd class="col-sm-10">
+                    @{
+                        var roles = await UserManager.GetRolesAsync(Model);
+                        string rolesList = "";
+                        foreach (var role in roles)
+                        {
+                            rolesList += $"{role}; ";
+                        }
+                        @rolesList
+                    }
+                </dd>
+
+                <dt class="col-sm-2">Email</dt>
+                <dd class="col-sm-10">@Model.Email</dd>
+                
+                <dt class="col-sm-2">Email Confirmed</dt>
+                <dd class="col-sm-10">@(Model.EmailConfirmed ? "Yes" : "No")</dd>
+                
+                <dt class="col-sm-2">Ban until</dt>
+                <dd class="col-sm-10">@(Model.LockoutEnd == null ? "Not banned" : Model.LockoutEnd)</dd>
+                
+                <dt class="col-sm-2">2FA</dt>
+                <dd class="col-sm-10">@(Model.TwoFactorEnabled ? "Yes" : "No")</dd>
+                
+                <dt class="col-sm-2">Bad logins</dt>
+                <dd class="col-sm-10">@Model.AccessFailedCount</dd>
+            </dl>
+            <form asp-action="DeleteUser">
+                <input type="hidden" asp-for="@Model.Id" />
+                <input type="submit" class="btn btn-danger" id="deleteUserForm" value="Delete" onclick="return confirmDelete();" />
+                <a asp-action="Users" class="btn btn-primary">I've changed my mind...</a>
+            </form>
+        </div>
+    }
+}
+
+<script hidden>
+    function confirmDelete() {
+        var result = confirm("Are you absolutely sure?");
+        if (result) {
+            document.getElementById("deleteUserForm").submit();
+        }
+        return false; // Prevent the form from submitting immediately
+    }
+</script>

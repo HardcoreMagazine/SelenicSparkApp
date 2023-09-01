@@ -1,22 +1,17 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using SelenicSparkApp.Data;
 
 namespace SelenicSparkApp.Controllers
 {
     [Authorize(Roles = "Admin")]
     public class AdminController : Controller
     {
-        private readonly ApplicationDbContext _context;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly ILogger<AdminController> _logger;
 
-
-        public AdminController(ApplicationDbContext context, UserManager<IdentityUser> userManager, ILogger<AdminController> logger)
+        public AdminController(UserManager<IdentityUser> userManager, ILogger<AdminController> logger)
         {
-            _context = context;
             _userManager = userManager;
             _logger = logger;
         }
@@ -36,7 +31,7 @@ namespace SelenicSparkApp.Controllers
         // GET: /Admin/User  -- edit user page
         public async Task<IActionResult> User(string? id)
         {
-            if (id == null || _context.Users == null)
+            if (id == null || !_userManager.Users.Any())
             {
                 return NotFound();
             }
@@ -114,9 +109,48 @@ namespace SelenicSparkApp.Controllers
             return View(user);
         }
 
-        public void DeleteUser(string? id)
+        // GET: /Admin/DeleteUser
+        public async Task<IActionResult> DeleteUser(string? id)
         {
-            //TODO
+            if (string. IsNullOrWhiteSpace(id) || !_userManager.Users.Any())
+            {
+                return NotFound();
+            }
+            var user = await _userManager.FindByIdAsync(id);
+
+            if (user == null)
+            {
+                return NotFound();
+            }
+            return View(user);
+        }
+
+        // POST: /Admin/DeleteUser
+        [HttpPost]
+        [ActionName("DeleteUser")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteUserConfirmed(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id) || !_userManager.Users.Any())
+            {
+                return NotFound();
+            }
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            var roles = await _userManager.GetRolesAsync(user);
+            // Normally user would have just 1 role, but just in case...
+            foreach (var role in roles)
+            {
+                if (role == "Admin")
+                {
+                    return BadRequest();
+                }
+            }
+            await _userManager.DeleteAsync(user);
+            return RedirectToAction(nameof(Users));
         }
     }
 }
