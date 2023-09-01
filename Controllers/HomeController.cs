@@ -23,6 +23,21 @@ namespace SelenicSparkApp.Controllers
             return View();
         }
 
+        public IActionResult Contacts()
+        {
+            return View();
+        }
+
+        public IActionResult Rules()
+        {
+            return View();
+        }
+
+        public IActionResult FAQ()
+        {
+            return View();
+        }
+
         public IActionResult Goodbye()
         {
             return View();
