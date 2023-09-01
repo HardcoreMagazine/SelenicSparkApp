@@ -1,4 +1,5 @@
 ﻿@using Microsoft.AspNetCore.Identity
+@model IdentityUser
 @inject SignInManager<IdentityUser> SignInManager
 
 @{
@@ -10,7 +11,45 @@
     @if (User.IsInRole("Admin")) // Triple-checking never hurt anyone
     {
         <div>
-            User editing form here
+            <form asp-action="User">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div> @* <- do we even need that? *@
+                <input type="hidden" asp-for="Id" />
+                <div class="form-group">
+                    <label asp-for="UserName" class="control-label">Username</label>
+                    <input asp-for="UserName" class="form-control" autocomplete="off"/>
+                    <span asp-validation-for="UserName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Email" class="control-label">Email</label>
+                    <input asp-for="Email" class="form-control" autocomplete="off"/>
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="EmailConfirmed" class="control-label">Email confirmed</label>
+                    <select asp-for="EmailConfirmed" class="form-control">
+                        @* "!" is a non-standard workaround for <@(...) inside tag attributes> error *@
+                        <!option value="true" @(Model.EmailConfirmed ? "selected" : "")>Yes</!option>
+                        <!option value="false" @(Model.EmailConfirmed ? "" : "selected")>No</!option>
+                    </select>
+                    <span asp-validation-for="EmailConfirmed"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="LockoutEnd" class="control-label">Ban until (leave empty to unban)</label>
+                    <input asp-for="LockoutEnd" class="form-control" autocomplete="off"/>
+                    <span asp-validation-for="LockoutEnd" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="AccessFailedCount" class="control-label">Bad logins</label>
+                    <input asp-for="AccessFailedCount" class="form-control" autocomplete="off"/>
+                    <span asp-validation-for="AccessFailedCount"></span>
+                </div>
+                <div class="form-group" style="padding-top:10px;">
+                    <input type="submit" value="Update" class="btn btn-primary w-100"/>
+                </div>
+            </form>
+            <a asp-action="Users" style="padding-top:10px;justify-content:center;display:flex;">
+                Back to Users
+            </a>
         </div>
     }
 }

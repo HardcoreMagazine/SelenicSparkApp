@@ -7,20 +7,28 @@
 
 @if (SignInManager.IsSignedIn(User))
 {
-    @if (User.IsInRole("Admin")) // Triple-checking never hurt anyone
+    @if (User.IsInRole("Admin")) @* Triple-checking never hurt anyone *@
     {
-        <div>
-            <h1 style="text-align:center;">
-                Hello, @User.Identity?.Name
+        <div style="text-align:center;">
+            <h1>
+                @ViewData["Title"]
             </h1>
+            <h5>
+                Hello, @User.Identity?.Name
+            </h5>
             <hr />
-            <a href="/Admin/Users">
-                Manage users
-            </a>
+            @* Add more button here if needed *@
+            <div style="display:flex; justify-content:center; align-content:center">
+                <a href="/Admin/Users" class="btn btn-primary">
+                    Manage users
+                </a>
+            </div>
+            @*
             <hr />
             <p>
-                Here goes the server log
+                Here goes anything else
             </p>
+            *@
         </div>
     }
 }
