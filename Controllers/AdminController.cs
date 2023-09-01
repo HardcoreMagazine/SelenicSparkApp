@@ -61,6 +61,7 @@ namespace SelenicSparkApp.Controllers
                 {
                     if (selectedUser.UserName != user.UserName & !string.IsNullOrWhiteSpace(user.UserName))
                     {
+                        // User will see new nickname (Username) only on re-login
                         selectedUser.UserName = user.UserName;
                         // All 'Normalized' fields must be updated accordingly,
                         // they DO NOT follow their 'Not normal' values on update
@@ -79,7 +80,7 @@ namespace SelenicSparkApp.Controllers
                     {
                         selectedUser.LockoutEnd = user.LockoutEnd;
                     }
-                    if (selectedUser.AccessFailedCount != user.AccessFailedCount)
+                    if (selectedUser.AccessFailedCount != user.AccessFailedCount & user.AccessFailedCount >= 0)
                     {
                         selectedUser.AccessFailedCount = user.AccessFailedCount;
                     }

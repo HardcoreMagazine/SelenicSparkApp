@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-/* TODO: USER IDENTITY */
 namespace SelenicSparkApp.Areas.Identity.Pages.Account.Manage
 {
     public class IndexModel : PageModel
@@ -15,9 +14,7 @@ namespace SelenicSparkApp.Areas.Identity.Pages.Account.Manage
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
 
-        public IndexModel(
-            UserManager<IdentityUser> userManager,
-            SignInManager<IdentityUser> signInManager)
+        public IndexModel(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -50,6 +47,7 @@ namespace SelenicSparkApp.Areas.Identity.Pages.Account.Manage
         public class InputModel
         {
             [DataType(DataType.Text)]
+            [StringLength(24, ErrorMessage = "{0} must be {2} to {1} characters long.", MinimumLength = 4)]
             [Display(Name = "Username")]
             public string Username { get; set; }
 
@@ -91,7 +89,7 @@ namespace SelenicSparkApp.Areas.Identity.Pages.Account.Manage
             var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound($"Unable to load user with ID '{_userManager.GetUserId(User)}'.");
+                return NotFound();
             }
 
             if (!ModelState.IsValid)
@@ -100,14 +98,30 @@ namespace SelenicSparkApp.Areas.Identity.Pages.Account.Manage
                 return Page();
             }
 
-            var userName = await _userManager.GetUserNameAsync(user);
-            if (!string.IsNullOrWhiteSpace(userName) & Input.Username != userName & _userManager.FindByNameAsync(Input.Username) == null)
+            if (!string.IsNullOrWhiteSpace(Input.Username) & Input.Username != user.UserName) 
             {
-                var setUsernameResult = await _userManager.SetUserNameAsync(user, Input.Username);
-                if (!setUsernameResult.Succeeded)
+                if (Input.Username.Length < 4 || Input.Username.Length > 24)
                 {
-                    StatusMessage = "Unexpected error when trying to set phone number.";
+                    StatusMessage = "Error: Username length must be from 4 to 24 characters long.";
                     return RedirectToPage();
+                }
+                if (await _userManager.FindByNameAsync(Input.Username) != null)
+                {
+                    StatusMessage = $"Error: Username \"{Input.Username}\" is alrady taken.";
+                    return RedirectToPage();
+                }
+
+                user.UserName = Input.Username;
+                user.NormalizedUserName = Input.Username.ToUpper();
+                var result = await _userManager.UpdateAsync(user);
+                if (!result.Succeeded)
+                {
+                    StatusMessage = "Unexpected error when trying to set username.";
+                    return RedirectToPage();
+                }
+                else
+                {
+                    StatusMessage = "Your profile has been updated.";
                 }
             }
 /*
@@ -124,7 +138,6 @@ namespace SelenicSparkApp.Areas.Identity.Pages.Account.Manage
 */
 
             await _signInManager.RefreshSignInAsync(user);
-            StatusMessage = "Your profile has been updated";
             return RedirectToPage();
         }
     }
