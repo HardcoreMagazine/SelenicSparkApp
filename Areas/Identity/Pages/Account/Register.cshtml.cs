@@ -5,20 +5,14 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Text;
 using System.Text.Encodings.Web;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Logging;
-using NuGet.Protocol;
 
 namespace SelenicSparkApp.Areas.Identity.Pages.Account
 {
@@ -119,7 +113,11 @@ namespace SelenicSparkApp.Areas.Identity.Pages.Account
             {
                 if (Input.UserName != Input.Email & !string.IsNullOrWhiteSpace(Input.UserName))
                 {
-                    return true;
+                    var lowercase = Input.UserName.ToLower();
+                    if (lowercase.Contains("admin") || lowercase.Contains("moderator") || lowercase.Contains("support"))
+                        return false;
+                    else
+                        return true;
                 }
                 else
                 {
@@ -154,7 +152,9 @@ namespace SelenicSparkApp.Areas.Identity.Pages.Account
                         $"Error: " +
                         $"Username \"{Input.UserName}\" is already taken or not valid. " +
                         $"Username must be 4 to 24 characters long and consist of " +
-                        $"alphabetic and/or special charaters and/or numbers.";
+                        $"alphabetic and/or special charaters and/or numbers." +
+                        $"Usernames containing words \"admin\", \"moderator\",\"support\" " +
+                        $"are not allowed.";
                     return Page();
                 }
 
