@@ -1,6 +1,9 @@
 ﻿@using Microsoft.AspNetCore.Identity;
+@using SelenicSparkApp.Data @* Normally I would advise against using that *@
+
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
+@inject ApplicationDbContext AppDbContext // Normally I would advise against using that *@
 
 @model IEnumerable<IdentityUser>
 @{
@@ -20,6 +23,7 @@
 	}
 
 	table td {
+		font-size:14px;
 		border: 1px solid;
 		text-align: center;
 		padding: 5px;
@@ -43,14 +47,12 @@
 			<table>
 				<thead>
 					<tr>
-						<th>@Html.DisplayNameFor(m => m.Id)</th>
-						<th>@Html.DisplayNameFor(m => m.UserName)</th>
+						<th>ID</th>
+						<th>Username</th>
 						<th>Role(s)</th>
-						<th>@Html.DisplayNameFor(m => m.Email)</th>
-						<th>Confirmed</th>
-						<th>2FA</th>
+						<th>Email</th>
+						<th>Valid</th>
 						<th>Ban until</th>
-						<th>Bad Logins</th>
 						<th>&nbsp;</th>
 						<th>&nbsp;</th>
 					</tr>
@@ -76,14 +78,12 @@
 							</td>
 							<td>@user.Email</td>
 							<td>@user.EmailConfirmed</td>
-							<td>@user.TwoFactorEnabled</td>
 							<td>@user.LockoutEnd</td>
-							<td>@user.AccessFailedCount</td>
 							<td>
-								<a asp-action="User" asp-route-id="@user.Id">Edit</a>
+								<a asp-action="User" asp-route-id="@user.Id">EDIT</a>
 							</td>
-							<td>
-								<a asp-action="DeleteUser" asp-route-id="@user.Id">Remove</a>
+							<td style="background-color:#fae8ed;">
+								<a asp-action="DeleteUser" asp-route-id="@user.Id">DEL</a>
 							</td>
 						</tr>
 					}

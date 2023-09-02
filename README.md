@@ -11,6 +11,5 @@ TODO:
 - Add moderator tools for user's posts
 
 OPTIONAL TODO:
-- and secondary objectives (optional) would be:
-- Adding SEARCH for Admin panel's Users page (user database index)
 - Adding pages to said User's page so it wont display whole database of users to poor single admin
+- Adding SEARCH for Admin panel's Users page (user database index) [lowest priority]

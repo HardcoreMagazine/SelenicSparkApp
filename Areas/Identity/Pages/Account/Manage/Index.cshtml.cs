@@ -80,7 +80,8 @@ namespace SelenicSparkApp.Areas.Identity.Pages.Account.Manage
                 usernameChangeTokens = new IdentityUserExpander(user.Id, user);
                 await _context.IdentityUserExpander.AddAsync(usernameChangeTokens);
                 await _context.SaveChangesAsync();
-                // Default amount of tokens is 1
+                // Default amount of tokens is 1.
+                // If you change that number - make sure to also update IdentityUserExpander constructor
                 UsernameChangeTokens = 1;
             }
             else
@@ -143,6 +144,7 @@ namespace SelenicSparkApp.Areas.Identity.Pages.Account.Manage
                 if (uct.UsernameChangeTokens <= 0)
                 {
                     StatusMessage = "Error: you don't have any username change tokens left!";
+                    UsernameChangeTokens = uct.UsernameChangeTokens;
                     return RedirectToPage();
                 }
 
