@@ -12,7 +12,7 @@ using SelenicSparkApp.Data;
 namespace SelenicSparkApp.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230902101450_IdentityUserExpanderSchema")]
+    [Migration("20230903052829_IdentityUserExpanderSchema")]
     partial class IdentityUserExpanderSchema
     {
         /// <inheritdoc />
@@ -234,9 +234,6 @@ namespace SelenicSparkApp.Data.Migrations
 
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("UserLockoutCount")
-                        .HasColumnType("int");
 
                     b.Property<int>("UserWarningsCount")
                         .HasColumnType("int");

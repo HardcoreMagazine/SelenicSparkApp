@@ -1,6 +1,9 @@
 ﻿@using Microsoft.AspNetCore.Identity
+@using SelenicSparkApp.Data @* Normally I would advise against using that *@
+
 @model IdentityUser
 @inject SignInManager<IdentityUser> SignInManager
+@inject ApplicationDbContext AppDbContext // Normally I would advise against using that *@
 
 @{
     ViewData["Title"] = "Edit user";

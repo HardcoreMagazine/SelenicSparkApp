@@ -16,9 +16,8 @@ namespace SelenicSparkApp.Data.Migrations
                 {
                     UID = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
-                    UsernameChangeTokens = table.Column<int>(type: "int", nullable: false, defaultValue: 1),
-                    UserWarningsCount = table.Column<int>(type: "int", nullable: false, defaultValue: 0),
-                    UserLockoutCount = table.Column<int>(type: "int", nullable: false, defaultValue: 0)
+                    UsernameChangeTokens = table.Column<int>(type: "int", nullable: false, defaultValue:1),
+                    UserWarningsCount = table.Column<int>(type: "int", nullable: false, defaultValue:0)
                 },
                 constraints: table =>
                 {

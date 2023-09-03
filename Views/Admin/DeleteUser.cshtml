@@ -1,6 +1,8 @@
 ﻿@using Microsoft.AspNetCore.Identity;
+@using SelenicSparkApp.Data;
 @inject SignInManager<IdentityUser> SignInManager
 @inject UserManager<IdentityUser> UserManager
+@inject ApplicationDbContext AppDbContext
 
 @model IdentityUser
 @{
@@ -46,7 +48,16 @@
                 
                 <dt class="col-sm-2">2FA</dt>
                 <dd class="col-sm-10">@(Model.TwoFactorEnabled ? "Yes" : "No")</dd>
-                
+
+                <dt class="col-sm-2">Warnings</dt>
+                <dd class="col-sm-10">
+                    @{
+                        var extraData = AppDbContext.IdentityUserExpander.FirstOrDefault(u => u.UID == Model.Id);
+                        // No point in creating new database entry if user's account is about to be deleted
+                        @(extraData == null ? "N/A" : extraData.UserWarningsCount)
+                    }
+                </dd>
+
                 <dt class="col-sm-2">Bad logins</dt>
                 <dd class="col-sm-10">@Model.AccessFailedCount</dd>
             </dl>
@@ -59,7 +70,7 @@
     }
 }
 
-<script hidden>
+<script>
     function confirmDelete() {
         var result = confirm("Are you absolutely sure?");
         if (result) {

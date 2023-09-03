@@ -113,7 +113,7 @@ namespace SelenicSparkApp.Controllers
         // GET: /Admin/DeleteUser
         public async Task<IActionResult> DeleteUser(string? id)
         {
-            if (string. IsNullOrWhiteSpace(id) || !_userManager.Users.Any())
+            if (string.IsNullOrWhiteSpace(id) || !_userManager.Users.Any())
             {
                 return NotFound();
             }
