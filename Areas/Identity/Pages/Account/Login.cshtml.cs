@@ -7,18 +7,25 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
 using SelenicSparkApp.CustomClasses;
+using SelenicSparkApp.Data;
 
 namespace SelenicSparkApp.Areas.Identity.Pages.Account
 {
     public class LoginModel : PageModel
     {
         private readonly EmailSignInManager _signInManager;
+        private readonly UserManager<IdentityUser> _userManager;
+        private readonly ApplicationDbContext _context;
         private readonly ILogger<LoginModel> _logger;
 
-        public LoginModel(EmailSignInManager signInManager, ILogger<LoginModel> logger)
+        public LoginModel(EmailSignInManager signInManager, UserManager<IdentityUser> userManager,
+            ApplicationDbContext context, ILogger<LoginModel> logger)
         {
             _signInManager = signInManager;
+            _userManager = userManager;
+            _context = context;
             _logger = logger;
         }
 
@@ -78,6 +85,33 @@ namespace SelenicSparkApp.Areas.Identity.Pages.Account
             public bool RememberMe { get; set; }
         }
 
+        /// <summary>
+        /// Checks if user has entry in IdentityUserExpander database, add if not. 
+        /// ONLY CALL THIS FUNCTION WHEN YOU'RE ABSOLUTELY SURE ABOUT USER EXISTANCE!!!
+        /// </summary>
+        private async Task CheckOrAddExtraUserData()
+        {
+            var user = await _userManager.FindByEmailAsync(Input.Email);
+            if (user == null)
+            {
+                return;
+            }
+            // Create IdentityUserExpander entry if not exists - this would allow to exclude manual entry creation in the future
+            var userExtra = await _context.IdentityUserExpander.FirstOrDefaultAsync(u => u.UID == user.Id);
+            if (userExtra == null)
+            {
+                userExtra = new Models.IdentityUserExpander
+                {
+                    UID = user.Id,
+                    User = user,
+                    UsernameChangeTokens = 1,
+                    UserWarningsCount = 0
+                };
+                await _context.IdentityUserExpander.AddAsync(userExtra);
+                await _context.SaveChangesAsync();
+            }
+        }
+
         public async Task OnGetAsync(string returnUrl = null)
         {
             if (!string.IsNullOrEmpty(ErrorMessage))
@@ -105,17 +139,17 @@ namespace SelenicSparkApp.Areas.Identity.Pages.Account
 
             if (ModelState.IsValid)
             {
-                // This doesn't count login failures towards account lockout
-                // To enable password failures to trigger account lockout, set lockoutOnFailure: true
-                //var r = await _signInManager.signin
-                var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: false);
+                // To disable password failures to trigger account lockout, set lockoutOnFailure: false
+                var result = await _signInManager.PasswordSignInAsync(Input.Email, Input.Password, Input.RememberMe, lockoutOnFailure: true);
                 if (result.Succeeded)
                 {
                     _logger.LogInformation($"User \"{Input.Email}\"logged in.");
+                    await CheckOrAddExtraUserData();
                     return LocalRedirect(returnUrl);
                 }
                 if (result.RequiresTwoFactor)
                 {
+                    await CheckOrAddExtraUserData(); // We most likely don't need that - users can't enable 2FA without logging in first
                     return RedirectToPage("./LoginWith2fa", new { ReturnUrl = returnUrl, RememberMe = Input.RememberMe });
                 }
                 if (result.IsLockedOut)
@@ -125,8 +159,28 @@ namespace SelenicSparkApp.Areas.Identity.Pages.Account
                 }
                 else
                 {
-                    _logger.LogWarning($"Failed login attempt by {Input.Email}");
-                    ModelState.AddModelError(string.Empty, "Invalid login attempt.");
+                    /* NOTE: THIS IS WHERE USERS WITHOUT CONFIRMED EMAIL END UP */
+#nullable enable
+                    var user = await _userManager.FindByEmailAsync(Input.Email);
+                    string errMsg;
+                    if (user != null)
+                    {
+                        if (!user.EmailConfirmed)
+                        {
+                            errMsg = "Confirm your email to log in";
+                        }
+                        else
+                        {
+                            errMsg = "Invalid login attempt.";
+                        }
+                    }
+                    else
+                    {
+                        errMsg = "Invalid login attempt.";
+                    }
+#nullable disable
+                    _logger.LogWarning($"Failed login attempt by {Input.Email}; Status: \"{errMsg}\"");
+                    ModelState.AddModelError(string.Empty, errMsg);
                     return Page();
                 }
             }

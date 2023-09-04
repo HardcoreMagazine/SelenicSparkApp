@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using SelenicSparkApp.Data;
+using SelenicSparkApp.Views.Admin;
 
 namespace SelenicSparkApp.Controllers
 {
@@ -9,10 +12,12 @@ namespace SelenicSparkApp.Controllers
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly ILogger<AdminController> _logger;
+        private readonly ApplicationDbContext _context;
 
-        public AdminController(UserManager<IdentityUser> userManager, ILogger<AdminController> logger)
+        public AdminController(UserManager<IdentityUser> userManager, ILogger<AdminController> logger, ApplicationDbContext context)
         {
             _userManager = userManager;
+            _context = context;
             _logger = logger;
         }
 
@@ -29,9 +34,9 @@ namespace SelenicSparkApp.Controllers
         }
 
         // GET: /Admin/User  -- edit user page
-        public async Task<IActionResult> User(string? id)
+        public async Task<IActionResult> EditUser(string? id)
         {
-            if (id == null || !_userManager.Users.Any())
+            if (string.IsNullOrWhiteSpace(id) || !_userManager.Users.Any())
             {
                 return NotFound();
             }
@@ -41,50 +46,119 @@ namespace SelenicSparkApp.Controllers
             {
                 return NotFound();
             }
-            return View(user);
+
+            var userExtra = await _context.IdentityUserExpander.FirstOrDefaultAsync(u => u.UID == id);
+            // Create entry if none found
+            if (userExtra == null)
+            {
+                // No data available - create & insert new default values
+                var defaultUserExtra = new Models.IdentityUserExpander
+                {
+                    UID = id,
+                    User = user,
+                    UsernameChangeTokens = 1,
+                    UserWarningsCount = 0
+                };
+                await _context.IdentityUserExpander.AddAsync(defaultUserExtra);
+                await _context.SaveChangesAsync();
+
+                var viewModel = new EditUserModel
+                {
+                    Id = id,
+                    UserName = user.UserName!, // No UserName nor Email can be null here, we did check at start
+                    Email = user.Email!,
+                    EmailConfirmed = user.EmailConfirmed,
+                    LockoutEnd = user.LockoutEnd,
+                    AccessFailedCount = user.AccessFailedCount,
+                    UsernameChangeTokens = 1,
+                    UserWarningsCount = 0
+                };
+                return View(viewModel);
+            }
+            else
+            {
+                var viewModel = new EditUserModel
+                {
+                    Id = id,
+                    UserName = user.UserName!, // No UserName nor Email can be null here, we did check at start
+                    Email = user.Email!,
+                    EmailConfirmed = user.EmailConfirmed,
+                    LockoutEnd = user.LockoutEnd,
+                    AccessFailedCount = user.AccessFailedCount,
+                    UsernameChangeTokens = userExtra.UsernameChangeTokens,
+                    UserWarningsCount = userExtra.UserWarningsCount
+                };
+                return View(viewModel);
+            }
         }
 
         // POST: /Admin/User -- edit user page
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> User(string id, [Bind("Id,UserName,Email,EmailConfirmed,LockoutEnd,AccessFailedCount")] IdentityUser user)
+        public async Task<IActionResult> EditUser(string id, [Bind("Id,UserName,Email,EmailConfirmed,LockoutEnd," +
+            "AccessFailedCount,UsernameChangeTokens,UserWarningsCount")] EditUserModel expandedUser)            
         {
-            if (id != user.Id) // Block cross-editing
+            if (id != expandedUser.Id) // Block cross-editing
             {
                 return NotFound();
             }
 
             if (ModelState.IsValid)
             {
-                var selectedUser = await _userManager.FindByIdAsync(user.Id);
+                var selectedUser = await _userManager.FindByIdAsync(expandedUser.Id);
+                var selectedUserExtras = await _context.IdentityUserExpander.FirstOrDefaultAsync(u => u.UID == id);
+                if (selectedUserExtras == null) // Failsafe
+                {
+                    selectedUserExtras = new Models.IdentityUserExpander
+                    {
+                        UID = selectedUser!.Id,
+                        User = selectedUser!,
+                        UsernameChangeTokens = 1,
+                        UserWarningsCount = 0
+                    };
+                }
+
                 if (selectedUser != null)
                 {
-                    if (selectedUser.UserName != user.UserName & !string.IsNullOrWhiteSpace(user.UserName))
+                    if (selectedUser.UserName != expandedUser.UserName & !string.IsNullOrWhiteSpace(expandedUser.UserName))
                     {
                         // User will see new nickname (Username) only on re-login
-                        selectedUser.UserName = user.UserName;
+                        selectedUser.UserName = expandedUser.UserName;
                         // All 'Normalized' fields must be updated accordingly,
                         // they DO NOT follow their 'Not normal' values on update
-                        selectedUser.NormalizedUserName = user.UserName!.ToUpper();
+                        selectedUser.NormalizedUserName = expandedUser.UserName!.ToUpper();
                     }
-                    if (selectedUser.Email != user.Email & !string.IsNullOrWhiteSpace(user.Email))
+                    if (selectedUser.Email != expandedUser.Email & !string.IsNullOrWhiteSpace(expandedUser.Email))
                     {
-                        selectedUser.Email = user.Email;
-                        selectedUser.NormalizedEmail = user.Email!.ToUpper();
+                        selectedUser.Email = expandedUser.Email;
+                        selectedUser.NormalizedEmail = expandedUser.Email!.ToUpper();
                     }
-                    if (selectedUser.EmailConfirmed != user.EmailConfirmed)
+                    if (selectedUser.EmailConfirmed != expandedUser.EmailConfirmed)
                     {
-                        selectedUser.EmailConfirmed = user.EmailConfirmed;
+                        selectedUser.EmailConfirmed = expandedUser.EmailConfirmed;
                     }
-                    if (selectedUser.LockoutEnd != user.LockoutEnd) // LockoutEnd can be NULL
+                    if (selectedUser.LockoutEnd != expandedUser.LockoutEnd) // LockoutEnd can be NULL
                     {
-                        selectedUser.LockoutEnd = user.LockoutEnd;
+                        selectedUser.LockoutEnd = expandedUser.LockoutEnd;
                     }
-                    if (selectedUser.AccessFailedCount != user.AccessFailedCount & user.AccessFailedCount >= 0)
+                    if (selectedUser.AccessFailedCount != expandedUser.AccessFailedCount & expandedUser.AccessFailedCount >= 0)
                     {
-                        selectedUser.AccessFailedCount = user.AccessFailedCount;
+                        selectedUser.AccessFailedCount = expandedUser.AccessFailedCount;
+                    }
+                    if (selectedUserExtras.UsernameChangeTokens != expandedUser.UsernameChangeTokens & expandedUser.UsernameChangeTokens >= 0)
+                    {
+                        selectedUserExtras.UsernameChangeTokens = expandedUser.UsernameChangeTokens;
+                    }
+                    if (selectedUserExtras.UserWarningsCount != expandedUser.UserWarningsCount & expandedUser.UserWarningsCount >= 0)
+                    {
+                        selectedUserExtras.UserWarningsCount = expandedUser.UserWarningsCount;
                     }
 
+                    // Update extra data fields first
+                    _context.IdentityUserExpander.Update(selectedUserExtras);
+                    await _context.SaveChangesAsync();
+
+                    // Update main fields
                     var result = await _userManager.UpdateAsync(selectedUser);
                     if (result.Succeeded)
                     {
@@ -98,7 +172,7 @@ namespace SelenicSparkApp.Controllers
                         {
                             errorLog += $"{err.Description}; ";
                         }
-                        _logger.LogWarning($"Failed to update {user.Id}, ErrLog: {errorLog}");
+                        _logger.LogWarning($"Failed to update {expandedUser.Id}, ErrLog: {errorLog}");
                         return BadRequest();
                     }
                 }
@@ -107,7 +181,7 @@ namespace SelenicSparkApp.Controllers
                     return NotFound();
                 }
             }
-            return View(user);
+            return View(expandedUser);
         }
 
         // GET: /Admin/DeleteUser

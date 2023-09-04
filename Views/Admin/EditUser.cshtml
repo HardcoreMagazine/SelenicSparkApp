@@ -1,10 +1,7 @@
 ﻿@using Microsoft.AspNetCore.Identity
-@using SelenicSparkApp.Data @* Normally I would advise against using that *@
 
-@model IdentityUser
+@model SelenicSparkApp.Views.Admin.EditUserModel
 @inject SignInManager<IdentityUser> SignInManager
-@inject ApplicationDbContext AppDbContext // Normally I would advise against using that *@
-
 @{
     ViewData["Title"] = "Edit user";
 }
@@ -14,18 +11,15 @@
     @if (User.IsInRole("Admin")) // Triple-checking never hurt anyone
     {
         <div>
-            <form asp-action="User">
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div> @* <- do we even need that? *@
+            <form asp-action="EditUser">
                 <input type="hidden" asp-for="Id" />
                 <div class="form-group">
                     <label asp-for="UserName" class="control-label">Username</label>
-                    <input asp-for="UserName" class="form-control" autocomplete="off"/>
-                    <span asp-validation-for="UserName" class="text-danger"></span>
+                    <input asp-for="UserName" class="form-control" autocomplete="off" />
                 </div>
                 <div class="form-group">
                     <label asp-for="Email" class="control-label">Email</label>
-                    <input asp-for="Email" class="form-control" autocomplete="off"/>
-                    <span asp-validation-for="Email" class="text-danger"></span>
+                    <input asp-for="Email" class="form-control" autocomplete="off" />
                 </div>
                 <div class="form-group">
                     <label asp-for="EmailConfirmed" class="control-label">Email confirmed</label>
@@ -34,17 +28,22 @@
                         <!option value="true" @(Model.EmailConfirmed ? "selected" : "")>Yes</!option>
                         <!option value="false" @(Model.EmailConfirmed ? "" : "selected")>No</!option>
                     </select>
-                    <span asp-validation-for="EmailConfirmed"></span>
                 </div>
                 <div class="form-group">
                     <label asp-for="LockoutEnd" class="control-label">Ban until [mm-dd-yyyy] (set empty to unban)</label>
-                    <input asp-for="LockoutEnd" class="form-control" autocomplete="off" type="date"/>
-                    <span asp-validation-for="LockoutEnd" class="text-danger"></span>
+                    <input asp-for="LockoutEnd" class="form-control" autocomplete="off" type="date" />
                 </div>
                 <div class="form-group">
                     <label asp-for="AccessFailedCount" class="control-label">Bad logins</label>
-                    <input asp-for="AccessFailedCount" class="form-control" autocomplete="off"/>
-                    <span asp-validation-for="AccessFailedCount"></span>
+                    <input asp-for="AccessFailedCount" class="form-control" autocomplete="off" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="UsernameChangeTokens" class="control-label">Username Change Tokens</label>
+                    <input asp-for="UsernameChangeTokens" class="form-control" autocomplete="off" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="UserWarningsCount" class="control-label">Warnings recieved</label>
+                    <input asp-for="UserWarningsCount" class="form-control" autocomplete="off" />
                 </div>
                 <div class="form-group" style="padding-top:10px;">
                     <input type="submit" value="Update" class="btn btn-primary w-100"/>
