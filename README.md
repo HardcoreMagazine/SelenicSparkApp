@@ -5,9 +5,9 @@ TODO:
 - ~~Fix "change username" for users~~
 - ~~Add "usernameChangeTokens" to migration & DB, integrate it inside user settings~~
 - ~~Add warning-usernameChangeTokens in Admin panel user management~~
-- Add role manger in Admin panel + protection to admin, moderator, user roles.
 - ~~Create/check for "extra" IdentityUser fields on login~~
 - ~~Fix/show msg for users w/o confirmed email instead of "Invalid login" on login page~~
+- Add role manger in Admin panel + protection to admin, moderator, user roles
 - Build feed and post view ground-up
 - Add moderator tools for user's posts
 
