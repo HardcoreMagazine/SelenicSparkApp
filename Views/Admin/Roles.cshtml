@@ -9,11 +9,7 @@
 	ViewData["Title"] = "Manage roles";
 }
 
-@*
-	MULTI-PAGE VIEW WILL NOT BE ADDED FOR THIS PAGE
-	SINCE NO ONE USES 100+ ROLES IN THEIR SYSTEM
-*@
-
+<link rel="stylesheet" href="~/css/datatables.min.css" />
 <style>
 	.grid-page {
 		display: grid;
@@ -61,7 +57,7 @@
 			</h1>
 			<hr />
 			<div class="grid-page">
-				<table>
+				<table id="tableWithSort" class="display">
 					<thead>
 						<tr>
 							<th>ID</th>
@@ -71,6 +67,8 @@
 						</tr>
 					</thead>
 					<tbody>
+						@for (int i = 0; i < 20; i++)
+						{
 						@foreach (var role in AppDbContext.Roles)
 						{
 						<tr>
@@ -83,6 +81,7 @@
 								<a asp-action="DeleteRole" asp-route-id="@role.Id">D</a>
 							</td>
 						</tr>
+						}
 						}
 					</tbody>
 				</table>
@@ -114,4 +113,13 @@
 			</div>
 		</div>
 	}
+}
+
+@section scripts {
+	<script src="~/js/datatables.min.js"></script>
+	<script>
+		$(document).ready(function () {
+			$('#tableWithSort').DataTable();
+		});
+	</script>
 }
