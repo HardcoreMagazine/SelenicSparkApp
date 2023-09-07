@@ -11,12 +11,15 @@ namespace SelenicSparkApp.Controllers
     public class AdminController : Controller
     {
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ILogger<AdminController> _logger;
         private readonly ApplicationDbContext _context;
 
-        public AdminController(UserManager<IdentityUser> userManager, ILogger<AdminController> logger, ApplicationDbContext context)
+        public AdminController(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, 
+            ILogger<AdminController> logger, ApplicationDbContext context)
         {
             _userManager = userManager;
+            _roleManager = roleManager;
             _context = context;
             _logger = logger;
         }
@@ -29,6 +32,11 @@ namespace SelenicSparkApp.Controllers
 
         // GET: /Admin/Users
         public ActionResult Users()
+        {
+            return View();
+        }
+
+        public ActionResult Roles()
         {
             return View();
         }
@@ -226,6 +234,45 @@ namespace SelenicSparkApp.Controllers
             }
             await _userManager.DeleteAsync(user);
             return RedirectToAction(nameof(Users));
+        }
+
+        // GET: /Admin/DeleteRole
+        public async Task<IActionResult> DeleteRole(string? id)
+        {
+            if (string.IsNullOrWhiteSpace(id) || !_context.Roles.Any())
+            {
+                return NotFound();
+            }
+            var role = await _context.FindAsync<IdentityRole>(id);
+            if (role == null)
+            {
+                return NotFound();
+            }
+            return View(role);
+        }
+
+        // POST: /Admin/DeleteRole
+        [HttpPost]
+        [ActionName("DeleteRole")]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteRoleConfirmed(string id)
+        {
+            if (string.IsNullOrWhiteSpace(id) || !_context.Roles.Any())
+            {
+                return NotFound();
+            }
+
+            var role = await _roleManager.FindByIdAsync(id);
+            if (role == null)
+            {
+                return NotFound();
+            }
+            if (role.Name == "Admin" || role.Name == "Moderator" || role.Name == "User")
+            {
+                return BadRequest();
+            }
+            await _roleManager.DeleteAsync(role);
+            return RedirectToAction(nameof(Roles));
         }
     }
 }
