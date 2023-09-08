@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace SelenicSparkApp.Views.Admin
 {
     public class EditUserModel

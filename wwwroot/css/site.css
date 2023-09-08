@@ -20,3 +20,11 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.horizontal-form {
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+    flex-grow: 1;
+    padding-bottom: 10px;
+}

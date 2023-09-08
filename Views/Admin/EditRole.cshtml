@@ -1,1 +1,26 @@
-﻿
+﻿@using Microsoft.AspNetCore.Identity
+
+@model IdentityRole
+@inject SignInManager<IdentityUser> SignInMgr
+@{
+    ViewData["Title"] = "Edit role";
+}
+
+@if (SignInMgr.IsSignedIn(User))
+{
+    @if (User.IsInRole("Admin")) // Triple-checking never hurt anyone
+    {
+        <div>
+            <form asp-action="EditRole" method="post">
+                <input type="hidden" asp-for="Id" />
+
+                <label asp-for="Name" class="control-label">Role name</label>
+                <input asp-for="Name" class="form-control" autocomplete="off" />
+                <input type="submit" value="Update" class="btn btn-primary w-100" style="padding-top:10px;" />
+            </form>
+            <a asp-action="Roles" style="padding-top:10px;justify-content:center;display:flex;">
+                Back to Roles list
+            </a>
+        </div>
+    }
+}

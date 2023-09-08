@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SelenicSparkApp.Data;
+using SelenicSparkApp.Models;
 using SelenicSparkApp.Views.Admin;
 
 namespace SelenicSparkApp.Controllers
@@ -36,12 +37,7 @@ namespace SelenicSparkApp.Controllers
             return View();
         }
 
-        public ActionResult Roles()
-        {
-            return View();
-        }
-
-        // GET: /Admin/User  -- edit user page
+        // GET: /Admin/EditUser
         public async Task<IActionResult> EditUser(string? id)
         {
             if (string.IsNullOrWhiteSpace(id) || !_userManager.Users.Any())
@@ -100,7 +96,7 @@ namespace SelenicSparkApp.Controllers
             }
         }
 
-        // POST: /Admin/User -- edit user page
+        // POST: /Admin/EditUser
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditUser(string id, [Bind("Id,UserName,Email,EmailConfirmed,LockoutEnd," +
@@ -234,6 +230,108 @@ namespace SelenicSparkApp.Controllers
             }
             await _userManager.DeleteAsync(user);
             return RedirectToAction(nameof(Users));
+        }
+
+        // GET: /Admin/Roles
+        public IActionResult Roles()
+        {
+            return View();
+        }
+       
+        // POST: /Admin/Roles -- create role
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateRole(string CreateRoleName)
+        {
+            if (!string.IsNullOrWhiteSpace(CreateRoleName))
+            {
+                var role = await _roleManager.FindByNameAsync(CreateRoleName);
+                if (role == null)
+                {
+                    var result = await _roleManager.CreateAsync(new IdentityRole(CreateRoleName));
+                    if (!result.Succeeded)
+                    {
+						string errorLog = "";
+						foreach (var err in result.Errors)
+						{
+							errorLog += $"\"{err.Description}\"; ";
+						}
+						_logger.LogWarning($"Failed to create new role \"{CreateRoleName}\", ErrLog: {errorLog}");
+                        return BadRequest();
+                    }
+                }
+            }
+            return RedirectToAction(nameof(Roles));
+		}
+		
+        // GET: /Admin/EditRole
+        public async Task<IActionResult> EditRole(string? id)
+        {
+            if (string.IsNullOrWhiteSpace(id) || !_roleManager.Roles.Any())
+            {
+                return NotFound();
+            }
+
+            var role = await _roleManager.FindByIdAsync(id);
+            if (role == null)
+            {
+                return NotFound();
+            }
+            else
+            {
+                return View(role);
+            }
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditRole(string id, [Bind("Id", "Name")] IdentityRole role)
+        {
+            if (id != role.Id) // Block cross-editing
+            {
+                return NotFound();
+            }
+
+            // Default roles are not editable
+            if (role.Name == "Admin" ||  role.Name == "Moderator" || role.Name == "User")
+            {
+                return BadRequest();
+            }
+
+            if (ModelState.IsValid)
+            {
+                var selectedRole = await _roleManager.FindByIdAsync(role.Id);
+                if (selectedRole != null)
+                {
+                    if (selectedRole.Name !=  role.Name & !string.IsNullOrWhiteSpace(role.Name))
+                    {
+                        selectedRole.Name = role.Name;
+                        selectedRole.NormalizedName = role.Name!.ToUpper();
+                        var result = await _roleManager.UpdateAsync(selectedRole);
+                        if (result.Succeeded)
+                        {
+                            _logger.LogInformation($"Role \"{selectedRole.Name}\" has been updated");
+                            return RedirectToAction(nameof(Roles));
+                        }
+                        else
+                        {
+                            string errorLog = "";
+                            foreach (var err in result.Errors)
+                            {
+                                errorLog += $"\"{err.Description}\"; ";
+                            }
+                            _logger.LogInformation($"Failed to update \"{selectedRole.Name}\", ErrLog: {errorLog}");
+                            return BadRequest();
+                        }
+                    }
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+            // We got this far? Go back.
+            return View(role);
         }
 
         // GET: /Admin/DeleteRole
