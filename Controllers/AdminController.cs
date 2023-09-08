@@ -251,13 +251,17 @@ namespace SelenicSparkApp.Controllers
                     var result = await _roleManager.CreateAsync(new IdentityRole(CreateRoleName));
                     if (!result.Succeeded)
                     {
-						string errorLog = "";
-						foreach (var err in result.Errors)
-						{
-							errorLog += $"\"{err.Description}\"; ";
-						}
-						_logger.LogWarning($"Failed to create new role \"{CreateRoleName}\", ErrLog: {errorLog}");
+                        string errorLog = "";
+                        foreach (var err in result.Errors)
+                        {
+                            errorLog += $"\"{err.Description}\"; ";
+                        }
+                        _logger.LogWarning($"Failed to create new role \"{CreateRoleName}\", ErrLog: {errorLog}");
                         return BadRequest();
+                    }
+                    else
+                    {
+                        _logger.LogInformation($"Created role \"{CreateRoleName}\"");
                     }
                 }
             }
@@ -283,6 +287,7 @@ namespace SelenicSparkApp.Controllers
             }
         }
 
+        // POST: /Admin/EditRole
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> EditRole(string id, [Bind("Id", "Name")] IdentityRole role)
@@ -369,6 +374,7 @@ namespace SelenicSparkApp.Controllers
             {
                 return BadRequest();
             }
+            _logger.LogInformation($"Deleted role \"{role.Name}\"");
             await _roleManager.DeleteAsync(role);
             return RedirectToAction(nameof(Roles));
         }
