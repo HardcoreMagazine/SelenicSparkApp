@@ -51,6 +51,10 @@ namespace SelenicSparkApp.Controllers
                 return NotFound();
             }
 
+            var userRoles = await _userManager.GetRolesAsync(user);
+            var allRoles = _roleManager.Roles.Select(item => item.Name).ToHashSet();
+            var availableRoles = allRoles.Except(userRoles).ToHashSet();
+
             var userExtra = await _context.IdentityUserExpander.FirstOrDefaultAsync(u => u.UID == id);
             // Create entry if none found
             if (userExtra == null)
@@ -70,12 +74,14 @@ namespace SelenicSparkApp.Controllers
                 {
                     Id = id,
                     UserName = user.UserName!, // No UserName nor Email can be null here, we did check at start
+                    UserRoles = userRoles.ToHashSet(),
                     Email = user.Email!,
                     EmailConfirmed = user.EmailConfirmed,
                     LockoutEnd = user.LockoutEnd,
                     AccessFailedCount = user.AccessFailedCount,
                     UsernameChangeTokens = 1,
-                    UserWarningsCount = 0
+                    UserWarningsCount = 0,
+                    AvailableRoles = availableRoles!
                 };
                 return View(viewModel);
             }
@@ -85,12 +91,14 @@ namespace SelenicSparkApp.Controllers
                 {
                     Id = id,
                     UserName = user.UserName!, // No UserName nor Email can be null here, we did check at start
+                    UserRoles = userRoles.ToHashSet(),
                     Email = user.Email!,
                     EmailConfirmed = user.EmailConfirmed,
                     LockoutEnd = user.LockoutEnd,
                     AccessFailedCount = user.AccessFailedCount,
                     UsernameChangeTokens = userExtra.UsernameChangeTokens,
-                    UserWarningsCount = userExtra.UserWarningsCount
+                    UserWarningsCount = userExtra.UserWarningsCount,
+                    AvailableRoles = availableRoles!
                 };
                 return View(viewModel);
             }
@@ -99,7 +107,7 @@ namespace SelenicSparkApp.Controllers
         // POST: /Admin/EditUser
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> EditUser(string id, [Bind("Id,UserName,Email,EmailConfirmed,LockoutEnd," +
+        public async Task<IActionResult> EditUser(string id, [Bind("Id,UserName,RolesSet,Email,EmailConfirmed,LockoutEnd," +
             "AccessFailedCount,UsernameChangeTokens,UserWarningsCount")] EditUserModel expandedUser)            
         {
             if (id != expandedUser.Id) // Block cross-editing
@@ -113,7 +121,7 @@ namespace SelenicSparkApp.Controllers
                 var selectedUserExtras = await _context.IdentityUserExpander.FirstOrDefaultAsync(u => u.UID == id);
                 if (selectedUserExtras == null) // Failsafe
                 {
-                    selectedUserExtras = new Models.IdentityUserExpander
+                    selectedUserExtras = new IdentityUserExpander
                     {
                         UID = selectedUser!.Id,
                         User = selectedUser!,

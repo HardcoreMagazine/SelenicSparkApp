@@ -12,5 +12,8 @@ namespace SelenicSparkApp.Views.Admin
         // IdentityUserExpander
         public required int UsernameChangeTokens { get; set; }
         public required int UserWarningsCount { get; set; }
+        // Hidden fields
+        public required HashSet<string> UserRoles { get; set; }
+        public required HashSet<string> AvailableRoles { get; set; } // Roles which user don't have
     }
 }
