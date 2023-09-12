@@ -39,6 +39,7 @@
         z-index: 1;
     }
     .dropdown-content a {
+        cursor: pointer;
         color: black;
         padding: 5px 12px;
         text-decoration: none;
@@ -73,12 +74,12 @@
                 </div>
                 <div class="form-group">
                     <label asp-for="UserRoles" class="control-label">Role(s)</label>
-                    <ul class="no-bullets">
+                    <ul class="no-bullets" id="allRoles">
                         @foreach (var role in Model.UserRoles)
                         {
-                            <li>
-                                <button type="button" class="btn-small-danger">
-                                    <svg role="img" height="16" viewBox="0 0 16 16" width="16">
+                            <li id="@role">
+                                <button type="button" class="btn-small-danger" onclick="specialRemLi('@role');">
+                                    <svg height="16" viewBox="0 0 16 16" width="16">
                                         <path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z"></path>
                                     </svg>
                                     @role
@@ -88,14 +89,14 @@
                         <li>
                             <div class="dropdown">
                                 <button type="button" class="btn-small-danger dropbtn" onclick="showRoles();">
-                                    <svg width="16" height="16" fill="currentColor" class="bi bi-plus" viewBox="0 0 16 16">
+                                    <svg height="16" viewBox="0 0 16 16" width="16">
                                         <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
                                     </svg>
                                 </button>
                                 <div id="dropdownList" class="dropdown-content">
                                     @foreach (var availableRole in Model.AvailableRoles)
                                     {
-                                        <a onclick="selectRole('@availableRole');">@availableRole</a>
+                                        <a onclick="specialAddLi('@availableRole');" id="@availableRole">@availableRole</a>
                                     }
                                 </div>
                             </div>
@@ -142,6 +143,22 @@
     }
 }
 
+@functions {
+    private object AssignRole(string role)
+    {
+        Model.UserRoles.Add(role);
+        Model.AvailableRoles.Remove(role);
+        return new object();
+    }
+    private object DeleteRole(string role)
+    {
+        Model.UserRoles.Remove(role);
+        Model.AvailableRoles.Add(role);
+        return new object();
+    }
+}
+
 @section scripts {
-    <script src="~/js/roles.js"></script>
+    <script src="~/js/rolesDropdown.js"></script>
+    <script src="~/js/rolesMgr.js"></script>
 }
