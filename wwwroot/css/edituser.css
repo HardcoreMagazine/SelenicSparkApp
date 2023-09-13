@@ -5,7 +5,8 @@
     font-family: Arial;
     text-decoration: none;
     border: none;
-    padding-inline-end: 12px;
+    padding-inline: 5px 10px;
+    margin: 3px;
 }
 
 .btn-small-danger > svg { /* Svg blocks button click event -> disable svg actions! */
@@ -57,5 +58,4 @@ ul.no-bullets {
 
 ul li {
     display: inline;
-    margin-inline: 2px 2px;
 }

@@ -2,13 +2,12 @@
 
 @model SelenicSparkApp.Views.Admin.EditUserModel
 @inject SignInManager<IdentityUser> SignInMgr
-@inject RoleManager<IdentityRole> RoleMgr
 
 @{
     ViewData["Title"] = "Edit user";
 }
 
-<link rel="stylesheet" href="~/css/edituser.css">
+<link rel="stylesheet" href="~/css/edituser.css" />
 
 @if (SignInMgr.IsSignedIn(User))
 {
@@ -24,17 +23,18 @@
                 <div class="form-group">
                     <label asp-for="UserRoles" class="control-label">Role(s)</label>
                     <ul class="no-bullets" id="allRoles">
+                        @for (int i = 0; i < 20; i++){
                         @foreach (var role in Model.UserRoles)
                         {
                             <li id="@role">
                                 <button type="button" class="btn-small-danger" onclick="specialRemLi('@role');">
-                                        <svg height="16" viewBox="0 0 16 16" width="16">
-                                            <path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z"></path>
-                                        </svg>
-                                        @role
+                                    <svg height="16" viewBox="0 0 16 16" width="16">
+                                        <path d="M3.72 3.72a.75.75 0 0 1 1.06 0L8 6.94l3.22-3.22a.749.749 0 0 1 1.275.326.749.749 0 0 1-.215.734L9.06 8l3.22 3.22a.749.749 0 0 1-.326 1.275.749.749 0 0 1-.734-.215L8 9.06l-3.22 3.22a.751.751 0 0 1-1.042-.018.751.751 0 0 1-.018-1.042L6.94 8 3.72 4.78a.75.75 0 0 1 0-1.06Z"></path>
+                                    </svg>
+                                    @role
                                 </button>
                             </li>
-                        }
+                        }}
                         <li>
                             <div class="dropdown">
                                 <button type="button" class="btn-small-danger dropbtn" onclick="showRoles();">
@@ -47,13 +47,13 @@
                                     {
                                         <a onclick="specialAddLi('@availableRole');" id="dd_@availableRole">@availableRole</a>
                                     }
-                                    <a>&nbsp;</a> @*Empty field so user won't think button doesn't work *@
+                                    <a>&nbsp;</a> @* Empty field so user won't think button doesn't work *@
                                 </div>
                             </div>
                         </li>
                     </ul>
                 </div>
-
+                
                 <div class="form-group">
                     <label asp-for="Email" class="control-label">Email</label>
                     <input asp-for="Email" class="form-control" autocomplete="off" />
