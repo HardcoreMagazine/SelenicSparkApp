@@ -1,0 +1,61 @@
+﻿.btn-small-danger {
+    background-color: lightgray;
+    border-radius: 20px;
+    display: inline-block;
+    font-family: Arial;
+    text-decoration: none;
+    border: none;
+    padding-inline-end: 12px;
+}
+
+.btn-small-danger > svg { /* Svg blocks button click event -> disable svg actions! */
+    pointer-events: none;
+}
+
+.btn-small-danger:hover {
+    background-color: gray;
+}
+
+.dropbtn {
+    width: 25px;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-content {
+    display: none;
+    position: absolute;
+    background-color: lightgray;
+    overflow: auto;
+    z-index: 1;
+}
+
+.dropdown-content a {
+    cursor: pointer;
+    color: black;
+    padding: 5px 12px;
+    text-decoration: none;
+    display: block;
+}
+
+.dropdown a:hover {
+    background-color: #ddd;
+}
+
+.show {
+    display: block;
+}
+
+ul.no-bullets {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+ul li {
+    display: inline;
+    margin-inline: 2px 2px;
+}
