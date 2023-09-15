@@ -53,9 +53,11 @@
                     Title
                 </th>
                 <th>
+                    Author
+                </th>
+                <th>
                     Text
                 </th>
-                <th></th>
             </tr>
         </thead>
         <tbody>
@@ -66,7 +68,10 @@
                         <a asp-action="Details" asp-route-id="@item.PostId">@item.PostTitle</a>
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.PostText)
+                        @Html.DisplayFor(modelItem => item.PostAuthor)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.PostText.Substring(0, 50))
                     </td>
                 </tr>
             }

@@ -196,6 +196,74 @@ namespace SelenicSparkApp.Controllers
             return View(expandedUser);
         }
 
+        // POST: /Admin/EditUser -- add or remove role
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ModUserRole(string Id, string Action, string Role)
+        {
+            if (string.IsNullOrWhiteSpace(Id) || string.IsNullOrWhiteSpace(Action) || string.IsNullOrWhiteSpace(Role))
+            {
+                return BadRequest();
+            }
+            var user = await _userManager.FindByIdAsync(Id);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            if (Action == "add")
+            {
+                var checkRole = await _userManager.GetRolesAsync(user);
+                if (checkRole == null)
+                {
+                    return StatusCode(500); // Internal Server Error
+                }
+                if (checkRole.Contains(Role))
+                {
+                    return BadRequest();
+                }
+                var result = await _userManager.AddToRoleAsync(user, Role);
+                if (!result.Succeeded)
+                {
+                    string errorLog = "";
+                    foreach (var err in result.Errors)
+                    {
+                        errorLog += $"{err.Description}; ";
+                    }
+                    _logger.LogWarning($"Failed to add role \"{Role}\" to user \"{user.UserName}\", errLog: \"{errorLog}\"");
+                    return BadRequest();
+                }
+                return RedirectToAction(nameof(EditUser), routeValues: new { id = Id });
+            }
+            else if (Action == "del")
+            {
+                var checkRole = await _userManager.GetRolesAsync(user);
+                if (checkRole == null)
+                {
+                    return StatusCode(500); // Internal Server Error
+                }
+                if (!checkRole.Contains(Role))
+                {
+                    return BadRequest();
+                }
+                var result = await _userManager.RemoveFromRoleAsync(user, Role);
+                if (!result.Succeeded)
+                {
+                    string errorLog = "";
+                    foreach (var err in result.Errors)
+                    {
+                        errorLog += $"{err.Description}; ";
+                    }
+                    _logger.LogWarning($"Failed to delete role \"{Role}\" from user \"{user.UserName}\", errLog: \"{errorLog}\"");
+                    return BadRequest();
+                }
+                return RedirectToAction(nameof(EditUser), routeValues: new { id = Id });
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
+
         // GET: /Admin/DeleteUser
         public async Task<IActionResult> DeleteUser(string? id)
         {
