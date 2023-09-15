@@ -6,7 +6,7 @@
     text-decoration: none;
     border: none;
     padding-inline: 5px 10px;
-    margin: 3px;
+    margin: 2px;
 }
 
 .btn-small-danger > svg { /* Svg blocks button click event -> disable svg actions! */
@@ -15,6 +15,19 @@
 
 .btn-small-danger:hover {
     background-color: gray;
+}
+
+.partially-visible {
+    width: auto;
+}
+
+.partially-visible:hover {
+    background-color: gray;
+}
+
+.partially-visible button {
+    background: none;
+    border: none;
 }
 
 .dropbtn {
@@ -34,12 +47,11 @@
     z-index: 1;
 }
 
-.dropdown-content a {
+.dropdown-content form {
     cursor: pointer;
     color: black;
     padding: 5px 12px;
     text-decoration: none;
-    display: block;
 }
 
 .dropdown a:hover {

@@ -53,11 +53,12 @@
                 </div>
             </form>
             <hr />
+            <label asp-for="UserRoles">User Roles</label>
             <ul class="no-bullets" id="allRoles">
                 @foreach (var role in Model.UserRoles)
                 {
                     <li>
-                        <form asp-action="ModUserRole">
+                        <form asp-action="ModUserRole" class="d-inline">
                             <input type="hidden" asp-for="Id" />
                             <input type="hidden" name="Action" value="del">
                             <button type="submit" class="btn-small-danger" name="Role" value="@role">
@@ -79,15 +80,15 @@
                         <div id="dropdownList" class="dropdown-content">
                             @foreach (var availableRole in Model.AvailableRoles)
                             {
-                                <form asp-action="ModUserRole">
+                                <form asp-action="ModUserRole" class="partially-visible">
                                     <input type="hidden" asp-for="Id" />
                                     <input type="hidden" name="Action" value="add">
-                                    <button type="submit" name="Role" value="@availableRole" class="btm-small-danger">
+                                    <button type="submit" name="Role" value="@availableRole">
                                         @availableRole
                                     </button>
                                 </form>
                             }
-                            <a>&nbsp;</a> @* Empty field so user won't think button doesn't work *@
+                            <!form>&nbsp;</!form> @* Empty field so user won't think button doesn't work *@
                         </div>
                     </div>
                 </li>
