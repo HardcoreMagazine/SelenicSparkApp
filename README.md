@@ -1,16 +1,20 @@
 # SelenicSparkApp
-Write cool stuff in here :P
+Ready to deploy forum/blog web app written on C# using ASP.NET Core MVC, EFC, MS SQL Server.
 
-TODO:
-- ~~Fix "change username" for users~~
-- ~~Add "usernameChangeTokens" to migration & DB, integrate it inside user settings~~
-- ~~Add warning-usernameChangeTokens in Admin panel user management~~
-- ~~Create/check for "extra" IdentityUser fields on login~~
-- ~~Fix/show msg for users w/o confirmed email instead of "Invalid login" on login page~~
-- ~~Add role manger in Admin panel + protection to admin, moderator, user roles~~
-- Build feed and post view ground-up
-- Add moderator tools for user's posts
+## Features:
+- User authentication, registration, 2FA
+- Automatic user ban on 5 bad login attemps (15 minutes - feel free to change that number)
+- Built-in admin panel that allows to manage users and roles
+- Built-in moderation tools (warn user, delete post/comment, ban user)
+- Simple blog-like posts multi-page view
+- Search for posts (title, text, author)
 
-OPTIONAL TODO:
-- ~~Adding pages to said User's page so it wont display whole database of users to poor single admin~~
-- ~~Adding SEARCH for Admin panel's Users page (user database index)~~
+## Planned features:
+- Custom color codes for each role, stored in database
+- User profile page (users)
+- Search for users
+- Moving project to WebAPI [back] + React [front]
+- Live website sample
+
+## License:
+Apache 2.0 - remember to modify license file when forking this repo!
