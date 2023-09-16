@@ -4,39 +4,28 @@
     ViewData["Title"] = "Create";
 }
 
-<h1>Create</h1>
-
-@* WORK IN PROGRESS *@
-<h4>Post</h4>
+<h4>Create post</h4>
 <hr />
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="PostTitle" class="control-label"></label>
-                <input asp-for="PostTitle" class="form-control" />
-                <span asp-validation-for="PostTitle" class="text-danger"></span>
+                <input asp-for="Title" class="form-control" placeholder="Title" minlength="4" maxlength="300" required />
+                <span asp-validation-for="Title" class="text-danger"></span>
             </div>
             <div class="form-group">
-                <label asp-for="PostText" class="control-label"></label>
-                <input asp-for="PostText" class="form-control" />
-                <span asp-validation-for="PostText" class="text-danger"></span>
+                <input asp-for="Text" class="form-control" placeholder="Text (optional)"/>
+                <span asp-validation-for="Text" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="PostAuthor" class="control-label"></label>
-                <input asp-for="PostAuthor" class="form-control" />
-                <span asp-validation-for="PostAuthor" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
+            <input asp-for="Author" type="hidden" value="@User.Identity?.Name" />
+            <input type="submit" value="Create" class="btn btn-primary w-100" />
         </form>
     </div>
 </div>
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <a asp-action="Index">Back</a>
 </div>
 
 @section Scripts {

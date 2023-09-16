@@ -10,10 +10,12 @@ Ready to deploy forum/blog web app written on C# using ASP.NET Core MVC, EFC, MS
 - Search for posts (title, text, author)
 
 ## Planned features:
+- Sort posts by #
 - Custom color codes for each role, stored in database
+- Toggle dark mode for all pages at any time
 - User profile page (users)
 - Search for users
-- Moving project to WebAPI [back] + React [front]
+- Moving project to MySQL + WebAPI + React
 - Live website sample
 
 ## License:

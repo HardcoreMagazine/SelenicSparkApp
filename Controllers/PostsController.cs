@@ -18,13 +18,11 @@ namespace SelenicSparkApp.Controllers
         // GET: Posts
         public async Task<IActionResult> Index()
         {
-              return _context.Post != null ? 
-                          View(await _context.Post.ToListAsync()) :
-                          Problem("Entity set 'ApplicationDbContext.Post'  is null.");
+            return _context.Post != null ? View(await _context.Post.ToListAsync()) : Problem("Entity set 'ApplicationDbContext.Post' is null.");
         }
 
         // GET: Posts/Search
-        public async Task<IActionResult> Search()
+        public IActionResult Search()
         {
             // Initialize input values
             ViewBag.SearchPhrase = "";
@@ -45,22 +43,22 @@ namespace SelenicSparkApp.Controllers
                 case "Titles":
                     return _context.Post != null ?
                         View("Search", await _context.Post
-                        .Where(p => p.PostTitle.Contains(SearchPhrase))
+                        .Where(p => p.Title.Contains(SearchPhrase))
                         .ToListAsync()) : Problem("Entity set 'ApplicationDbContext.Post'  is null.");
                 case "Text":
                     return _context.Post != null ?
                         View("Search", await _context.Post
-                        .Where(p => p.PostText.Contains(SearchPhrase))
+                        .Where(p => p.Text.Contains(SearchPhrase))
                         .ToListAsync()) : Problem("Entity set 'ApplicationDbContext.Post'  is null.");
                 case "Author":
                     return _context.Post != null ?
                         View("Search", await _context.Post
-                        .Where(p => p.PostAuthor.Contains(SearchPhrase))
+                        .Where(p => p.Author.Contains(SearchPhrase))
                         .ToListAsync()) : Problem("Entity set 'ApplicationDbContext.Post'  is null.");
                 default:
                     return _context.Post != null ?
                         View("Search", await _context.Post
-                        .Where(p => p.PostTitle.Contains(SearchPhrase) || p.PostText.Contains(SearchPhrase) || p.PostAuthor.Contains(SearchPhrase))
+                        .Where(p => p.Title.Contains(SearchPhrase) || p.Text.Contains(SearchPhrase) || p.Author.Contains(SearchPhrase))
                         .ToListAsync()) : Problem("Entity set 'ApplicationDbContext.Post'  is null.");
             }
         }
@@ -96,10 +94,20 @@ namespace SelenicSparkApp.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("PostId,PostTitle,PostText,PostAuthor")] Post post)
+        public async Task<IActionResult> Create([Bind("Title,Text,Author")] Post post)
         {
+            if (string.IsNullOrWhiteSpace(post.Title) || string.IsNullOrWhiteSpace(post.Author))
+            {
+                return BadRequest();
+            }
+            if (post.Title.Length < 4 || post.Title.Length > 300)
+            {
+                return BadRequest();
+            }
             if (ModelState.IsValid)
             {
+                post.CreatedDate = DateTimeOffset.UtcNow;
+
                 _context.Add(post);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -107,7 +115,7 @@ namespace SelenicSparkApp.Controllers
             return View(post);
         }
 
-        // GET: Posts/Edit/5
+        // GET: Posts/Edit
         [Authorize(Roles = "Admin, Moderator")]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -124,7 +132,7 @@ namespace SelenicSparkApp.Controllers
             return View(post);
         }
 
-        // POST: Posts/Edit/5
+        // POST: Posts/Edit
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [Authorize(Roles = "Admin, Moderator")]
@@ -160,7 +168,7 @@ namespace SelenicSparkApp.Controllers
             return View(post);
         }
 
-        // GET: Posts/Delete/5
+        // GET: Posts/Delete
         [Authorize(Roles = "Admin, Moderator")]
         public async Task<IActionResult> Delete(int? id)
         {
@@ -179,7 +187,7 @@ namespace SelenicSparkApp.Controllers
             return View(post);
         }
 
-        // POST: Posts/Delete/5
+        // POST: Posts/Delete
         [Authorize(Roles = "Admin, Moderator")]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]

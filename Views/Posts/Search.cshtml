@@ -65,13 +65,13 @@
             {
                 <tr>
                     <td>
-                        <a asp-action="Details" asp-route-id="@item.PostId">@item.PostTitle</a>
+                        <a asp-action="Details" asp-route-id="@item.PostId">@item.Title</a>
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.PostAuthor)
+                        @Html.DisplayFor(modelItem => item.Author)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.PostText.Substring(0, 50))
+                        @Html.DisplayFor(modelItem => item.Text.Substring(0, 50))
                     </td>
                 </tr>
             }

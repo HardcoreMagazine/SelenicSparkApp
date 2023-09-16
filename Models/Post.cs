@@ -2,13 +2,12 @@
 {
     public class Post
     {
-        public int PostId { get; set; }
-        public string PostTitle { get; set; }
-        public string PostText { get; set; }
-        public string PostAuthor { get; set; }
+        public required int PostId { get; set; }
+        public required string Title { get; set; }
+        public string? Text { get; set; }
+        public required string Author { get; set; }
+        public required DateTimeOffset CreatedDate { get; set; }
 
-        public Post()
-        {
-        }
+        public Post() {}
     }
 }

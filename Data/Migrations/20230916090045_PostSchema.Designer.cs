@@ -12,8 +12,8 @@ using SelenicSparkApp.Data;
 namespace SelenicSparkApp.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230903052829_IdentityUserExpanderSchema")]
-    partial class IdentityUserExpanderSchema
+    [Migration("20230916090045_PostSchema")]
+    partial class PostSchema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -227,27 +227,6 @@ namespace SelenicSparkApp.Data.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("SelenicSparkApp.Models.IdentityUserExpander", b =>
-                {
-                    b.Property<string>("UID")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("UserWarningsCount")
-                        .HasColumnType("int");
-
-                    b.Property<int>("UsernameChangeTokens")
-                        .HasColumnType("int");
-
-                    b.HasKey("UID");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("IdentityUserExpander");
-                });
-
             modelBuilder.Entity("SelenicSparkApp.Models.Post", b =>
                 {
                     b.Property<int>("PostId")
@@ -256,15 +235,17 @@ namespace SelenicSparkApp.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("PostId"));
 
-                    b.Property<string>("PostAuthor")
+                    b.Property<string>("Author")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PostText")
-                        .IsRequired()
+                    b.Property<DateTimeOffset>("CreatedDate")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("Text")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("PostTitle")
+                    b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -322,21 +303,6 @@ namespace SelenicSparkApp.Data.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("SelenicSparkApp.Models.IdentityUserExpander", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", null)
-                        .WithOne()
-                        .HasForeignKey("SelenicSparkApp.Models.IdentityUserExpander", "UID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId");
-
-                    b.Navigation("User");
                 });
 #pragma warning restore 612, 618
         }

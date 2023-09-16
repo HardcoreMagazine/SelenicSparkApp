@@ -20,13 +20,13 @@
         <thead>
             <tr>
                 <th>
-                    @Html.DisplayNameFor(model => model.PostTitle)
+                    @Html.DisplayNameFor(model => model.Title)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.PostText)
+                    @Html.DisplayNameFor(model => model.Text)
                 </th>
                 <th>
-                    @Html.DisplayNameFor(model => model.PostAuthor)
+                    @Html.DisplayNameFor(model => model.Author)
                 </th>
             </tr>
         </thead>
@@ -35,13 +35,13 @@
             {
                 <tr>
                     <td>
-                        @Html.DisplayFor(modelItem => item.PostTitle)
+                        @Html.DisplayFor(modelItem => item.Title)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.PostText)
+                        @Html.DisplayFor(modelItem => item.Text)
                     </td>
                     <td>
-                        @Html.DisplayFor(modelItem => item.PostAuthor)
+                        @Html.DisplayFor(modelItem => item.Author)
                     </td>
                     <td>
                         <a asp-action="Edit" asp-route-id="@item.PostId">Edit</a> |
