@@ -5,8 +5,8 @@ Ready to deploy forum/blog web app written on C# using ASP.NET Core MVC, EFC, MS
 - User authentication, registration, 2FA
 - Automatic user ban on 5 bad login attemps (15 minutes - feel free to change that number)
 - Built-in admin panel that allows to manage users and roles
-- Built-in moderation tools (warn user, delete post/comment, ban user)
-- Simple blog-like posts multi-page view
+- Built-in basic moderation tools: warn user, delete post/comment, ban user
+- Simple blog-like posts multi-page view: create (markdown supported!), view, edit, delete
 - Search for posts (title, text, author)
 
 ## Planned features:

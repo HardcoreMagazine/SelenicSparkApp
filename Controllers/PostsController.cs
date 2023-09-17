@@ -96,11 +96,16 @@ namespace SelenicSparkApp.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Title,Text,Author")] Post post)
         {
+            // Double checking so people with Postman and other tools won't make a mess
             if (string.IsNullOrWhiteSpace(post.Title) || string.IsNullOrWhiteSpace(post.Author))
             {
                 return BadRequest();
             }
             if (post.Title.Length < 4 || post.Title.Length > 300)
+            {
+                return BadRequest();
+            }
+            if (post.Text?.Length > 20_000)
             {
                 return BadRequest();
             }
@@ -110,9 +115,10 @@ namespace SelenicSparkApp.Controllers
 
                 _context.Add(post);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+
+                return RedirectToAction(nameof(Details), routeValues: new { id = post.PostId });
             }
-            return View(post);
+            return View(post); // Return to self
         }
 
         // GET: Posts/Edit
