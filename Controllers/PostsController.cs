@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Markdig;
 using SelenicSparkApp.Data;
 using SelenicSparkApp.Models;
 
@@ -112,7 +113,14 @@ namespace SelenicSparkApp.Controllers
             if (ModelState.IsValid)
             {
                 post.CreatedDate = DateTimeOffset.UtcNow;
-
+                if (!string.IsNullOrWhiteSpace(post.Text))
+                {
+                    var pipeline = new MarkdownPipelineBuilder()
+                        .UseBootstrap()
+                        .UseEmojiAndSmiley(false)
+                        .Build();
+                    post.Text = Markdown.ToHtml(post.Text, pipeline);
+                }
                 _context.Add(post);
                 await _context.SaveChangesAsync();
 

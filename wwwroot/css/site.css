@@ -41,3 +41,7 @@ body {
     display: flex !important;
     justify-content: center !important;
 }
+
+.height-1 {
+    height:  2.5rem;
+}
