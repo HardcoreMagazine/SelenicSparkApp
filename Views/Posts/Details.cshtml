@@ -14,6 +14,7 @@
         @Html.Raw(Model.Text)
     </div>
     <div>
+        <hr />
         @if (SignInManager.IsSignedIn(User))
         {
             @if (User.Identity?.Name == Model.Author || User.IsInRole("Moderator") || User.IsInRole("Admin"))

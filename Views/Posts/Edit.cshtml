@@ -13,6 +13,11 @@
         <hr />
         <form asp-action="Edit">
             <input type="hidden" asp-for="PostId" />
+            @if (User.IsInRole("Moderator") || User.IsInRole("Admin"))
+            {
+                <input asp-for="Title" class="form-control" placeholder="Title" autocomplete="off" minlength="4" maxlength="300" required/>
+                <span asp-validation-for="Title" class="text-danger"></span>
+            }
             <textarea asp-for="Text" id="tbe" placeholder="Text (optional)"></textarea>
             <input type="submit" value="Save changes" class="btn btn-primary" />
         </form>
