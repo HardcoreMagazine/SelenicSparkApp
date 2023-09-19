@@ -4,16 +4,25 @@ using Microsoft.EntityFrameworkCore;
 using Markdig;
 using SelenicSparkApp.Data;
 using SelenicSparkApp.Models;
+using ReverseMarkdown;
 
 namespace SelenicSparkApp.Controllers
 {
     public class PostsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly Converter _converter;
 
         public PostsController(ApplicationDbContext context)
         {
             _context = context;
+
+            var config = new Config
+            {
+                ListBulletChar = '*',
+                SmartHrefHandling = true
+            };
+            _converter = new Converter(config);
         }
 
         // GET: Posts
@@ -130,10 +139,10 @@ namespace SelenicSparkApp.Controllers
         }
 
         // GET: Posts/Edit
-        [Authorize(Roles = "Admin, Moderator")]
+        [Authorize]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null || _context.Post == null)
+            if (id == null || !_context.Post.Any())
             {
                 return NotFound();
             }
@@ -143,47 +152,56 @@ namespace SelenicSparkApp.Controllers
             {
                 return NotFound();
             }
-            return View(post);
+            
+            if (post.Author ==  User.Identity?.Name || User.IsInRole("Admin") || User.IsInRole("Moderator"))
+            {
+                // Reverse-translate HTML to Markdown
+
+                post.Text = _converter.Convert(post.Text);
+                return View(post);
+            }
+            else
+            {
+                return Forbid();
+            }
         }
 
         // POST: Posts/Edit
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [Authorize(Roles = "Admin, Moderator")]
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("PostId,PostTitle,PostText,PostAuthor")] Post post)
+        public async Task<IActionResult> Edit(int id, [Bind("PostId,Text")] Post partialPost)
         {
-            if (id != post.PostId)
+            if (id != partialPost.PostId)
+            {
+                return BadRequest();
+            }
+
+            var post = await _context.Post.FindAsync(id);
+            if (post == null)
             {
                 return NotFound();
             }
-
-            if (ModelState.IsValid)
+            else
             {
-                try
+                if (!string.IsNullOrWhiteSpace(partialPost.Text))
                 {
-                    _context.Update(post);
+                    var pipeline = new MarkdownPipelineBuilder()
+                        .UseBootstrap()
+                        .UseEmojiAndSmiley(false)
+                        .Build();
+                    post.Text = Markdown.ToHtml(partialPost.Text, pipeline);
+                    _context.Post.Update(post);
                     await _context.SaveChangesAsync();
                 }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!PostExists(post.PostId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(Details), new { id = partialPost.PostId });
             }
-            return View(post);
         }
 
         // GET: Posts/Delete
-        [Authorize(Roles = "Admin, Moderator")]
+        [Authorize]
         public async Task<IActionResult> Delete(int? id)
         {
             if (id == null || _context.Post == null)
@@ -202,7 +220,7 @@ namespace SelenicSparkApp.Controllers
         }
 
         // POST: Posts/Delete
-        [Authorize(Roles = "Admin, Moderator")]
+        [Authorize]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -219,11 +237,6 @@ namespace SelenicSparkApp.Controllers
             
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
-        }
-
-        private bool PostExists(int id)
-        {
-          return (_context.Post?.Any(e => e.PostId == id)).GetValueOrDefault();
         }
     }
 }

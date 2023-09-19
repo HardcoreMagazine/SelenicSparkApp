@@ -1,44 +1,31 @@
 ﻿@model SelenicSparkApp.Models.Post
 
 @{
-    ViewData["Title"] = "Edit";
+    ViewData["Title"] = "Edit post";
 }
 
-<h1>Edit</h1>
-
-<h4>Post</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="PostId" />
-            <div class="form-group">
-                <label asp-for="Title" class="control-label"></label>
-                <input asp-for="Title" class="form-control" />
-                <span asp-validation-for="Title" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Text" class="control-label"></label>
-                <input asp-for="Text" class="form-control" />
-                <span asp-validation-for="Text" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Author" class="control-label"></label>
-                <input asp-for="Author" class="form-control" />
-                <span asp-validation-for="Author" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
-    </div>
-</div>
+<link rel="stylesheet" href="~/css/simplemde.min.css" />
 
 <div>
-    <a asp-action="Index">Back to List</a>
+    <div>
+        <h1>@Model.Title</h1>
+        <p>By <i>@Model.Author</i> at @Model.CreatedDate.ToString("HH:mm dd.MM.yyyy")</p>
+        <hr />
+        <form asp-action="Edit">
+            <input type="hidden" asp-for="PostId" />
+            <textarea asp-for="Text" id="tbe" placeholder="Text (optional)"></textarea>
+            <input type="submit" value="Save changes" class="btn btn-primary" />
+        </form>
+    </div>
+    <div>
+        <p style="margin-top: 20px;">
+            Or... <a asp-action="Details" asp-route-id="@Model?.PostId" class="btn btn-warning">Cancel any changes and return</a>
+        </p>
+    </div>
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/js/simplemde.min.js"></script>
+    <script src="~/js/EditPost.js"></script>
 }
