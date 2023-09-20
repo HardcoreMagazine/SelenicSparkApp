@@ -19,3 +19,8 @@ Ready to deploy forum/blog web app written on C# using ASP.NET Core MVC, EFC, MS
 
 ## License:
 **[Apache 2.0 License](LICENSE)**
+```
+This software may include third party components with separate legal 
+notices or governed by other agreements, as may be described in the 
+ThirdPartyLicense file(s) accompanying the software.
+```

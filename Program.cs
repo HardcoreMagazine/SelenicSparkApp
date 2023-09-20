@@ -50,6 +50,11 @@ app.UseAuthorization();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+app.MapControllerRoute(
+    name: "posts",
+    pattern: "{controller=Posts}/{action=Index}/{page:int}"); // Results in '?page=INT' and '/?page=INT'
+
 app.MapRazorPages();
 
 using (var scope = app.Services.CreateScope())

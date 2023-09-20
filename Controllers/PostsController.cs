@@ -5,6 +5,7 @@ using Markdig;
 using SelenicSparkApp.Data;
 using SelenicSparkApp.Models;
 using ReverseMarkdown;
+using System.Text.RegularExpressions;
 
 namespace SelenicSparkApp.Controllers
 {
@@ -13,6 +14,8 @@ namespace SelenicSparkApp.Controllers
         private readonly ApplicationDbContext _context;
         private readonly Converter _converter;
         private const int MaxPostLen = 20_000;
+        private const int PostsPerPage = 2; // 30
+        private const int PostPreviewTextLen = 450;
 
         public PostsController(ApplicationDbContext context)
         {
@@ -27,7 +30,7 @@ namespace SelenicSparkApp.Controllers
         }
 
         // GET: Posts
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(int page = 1)
         {
             if (!_context.Post.Any())
             {
@@ -35,7 +38,28 @@ namespace SelenicSparkApp.Controllers
             }
             else
             {
-                var posts = await _context.Post.OrderByDescending(p => p.CreatedDate).ToListAsync();
+                //ViewBag.Page = page;
+                //ViewBag.Pages = _context.Post.Count();
+
+                int skip = (page - 1) * PostsPerPage;
+                
+                var posts = await _context.Post
+                    .OrderByDescending(p => p.CreatedDate)
+                    .Skip(skip)
+                    .Take(PostsPerPage)
+                    .ToListAsync();
+                // Process "Text" - so user don't have to
+                for (int i = 0; i < posts.Count; i++)
+                {
+                    if (!string.IsNullOrWhiteSpace(posts[i].Text))
+                    {
+                        posts[i].Text = Regex.Replace(posts[i].Text!, "<.*?>", string.Empty); // Strip all HTML tags
+                        if (posts[i].Text!.Length > PostPreviewTextLen)
+                        {
+                            posts[i].Text = posts[i].Text!.Substring(0, PostPreviewTextLen) + "...";
+                        }
+                    }
+                }
                 return View(posts);
             }
         }

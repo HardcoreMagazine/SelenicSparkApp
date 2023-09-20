@@ -29,19 +29,7 @@
                         <br>
                         @if (!string.IsNullOrWhiteSpace(post.Text))
                         {
-                            <p class="post-text">
-                                @{
-                                    post.Text = Regex.Replace(post.Text, "<.*?>", string.Empty); // Strip HTML tags
-                                    if (post.Text.Length > 450)
-                                    {
-                                        @(post.Text.Substring(0, 450) + "...")
-                                    }
-                                    else
-                                    {
-                                        @post.Text
-                                    }
-                                }
-                            </p>
+                            <p class="post-text">@post.Text</p>
                         }
                     </div>
                     <div class="sm-text">
