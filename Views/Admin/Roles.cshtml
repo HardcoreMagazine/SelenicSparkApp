@@ -10,36 +10,7 @@
 }
 
 <link rel="stylesheet" href="~/css/datatables.min.css" />
-<style>
-	.page-container {
-		display: flex;
-		justify-content: space-between;
-	}
-	.data-table-container {
-		flex-grow: 1;
-		padding: 10px;
-	}
-	.forms-container {
-		flex-basis: 40%;
-		padding: 10px;
-	}
-	table {
-		border: 1px solid;
-		border-collapse: collapse;
-		grid-area: tbl;
-	}
-	table th {
-		border: 1px solid;
-		background: rgb(240,240,240);
-		text-align: center !important;
-	}
-
-	table td {
-		border: 1px solid;
-		text-align: center;
-		padding: 3px;
-	}
-</style>
+<link rel="stylesheet" href="~/css/Roles.css" />
  
 @if (SignInMgr.IsSignedIn(User))
 {
@@ -57,7 +28,7 @@
 							<tr>
 								<th>ID</th>
 								<th>Role Name</th>
-								<th>&nbsp;</th>
+								<th>&nbsp;</th> @* Required by DataTables script *@
 								<th>&nbsp;</th>
 							</tr>
 						</thead>
@@ -87,14 +58,13 @@
 				</div>
 			</div>
 		</div>
+		@section Scripts {
+			<script src="~/js/datatables.min.js"></script>
+			<script>
+				$(document).ready(function () {
+					$('#tableWithSort').DataTable();
+				});
+			</script>
+		}
 	}
-}
-
-@section scripts {
-	<script src="~/js/datatables.min.js"></script>
-	<script>
-		$(document).ready(function () {
-			$('#tableWithSort').DataTable();
-		});
-	</script>
 }

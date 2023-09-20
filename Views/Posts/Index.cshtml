@@ -3,7 +3,7 @@
 @inject SignInManager<IdentityUser> SignInManager
 @model IEnumerable<SelenicSparkApp.Models.Post>
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "All posts";
 }
 
 @if (SignInManager.IsSignedIn(User))
@@ -44,8 +44,8 @@
                         @Html.DisplayFor(modelItem => item.Author)
                     </td>
                     <td>
-                        <a asp-action="Edit" asp-route-id="@item.PostId">Edit</a> |
-                        <a asp-action="Details" asp-route-id="@item.PostId">Details</a> |
+                        <a asp-action="Edit" asp-route-id="@item.PostId">Edit</a> 
+                        <a asp-action="Details" asp-route-id="@item.PostId">Details</a> 
                         <a asp-action="Delete" asp-route-id="@item.PostId">Delete</a>
                     </td>
                 </tr>
