@@ -54,13 +54,12 @@ namespace SelenicSparkApp.Controllers
             var userRoles = await _userManager.GetRolesAsync(user);
             var allRoles = _roleManager.Roles.Select(item => item.Name).ToHashSet();
             var availableRoles = allRoles.Except(userRoles).ToHashSet();
-
             var userExtra = await _context.IdentityUserExpander.FirstOrDefaultAsync(u => u.UID == id);
             // Create entry if none found
             if (userExtra == null)
             {
                 // No data available - create & insert new default values
-                var defaultUserExtra = new Models.IdentityUserExpander
+                var defaultUserExtra = new IdentityUserExpander
                 {
                     UID = id,
                     User = user,
@@ -74,13 +73,13 @@ namespace SelenicSparkApp.Controllers
                 {
                     Id = id,
                     UserName = user.UserName!, // No UserName nor Email can be null here, we did check at start
-                    UserRoles = userRoles.ToHashSet(),
                     Email = user.Email!,
                     EmailConfirmed = user.EmailConfirmed,
                     LockoutEnd = user.LockoutEnd,
                     AccessFailedCount = user.AccessFailedCount,
-                    UsernameChangeTokens = 1,
-                    UserWarningsCount = 0,
+                    UsernameChangeTokens = defaultUserExtra.UsernameChangeTokens,
+                    UserWarningsCount = defaultUserExtra.UserWarningsCount,
+                    UserRoles = userRoles.ToHashSet(),
                     AvailableRoles = availableRoles!
                 };
                 return View(viewModel);
@@ -91,13 +90,13 @@ namespace SelenicSparkApp.Controllers
                 {
                     Id = id,
                     UserName = user.UserName!, // No UserName nor Email can be null here, we did check at start
-                    UserRoles = userRoles.ToHashSet(),
                     Email = user.Email!,
                     EmailConfirmed = user.EmailConfirmed,
                     LockoutEnd = user.LockoutEnd,
                     AccessFailedCount = user.AccessFailedCount,
                     UsernameChangeTokens = userExtra.UsernameChangeTokens,
                     UserWarningsCount = userExtra.UserWarningsCount,
+                    UserRoles = userRoles.ToHashSet(),
                     AvailableRoles = availableRoles!
                 };
                 return View(viewModel);
@@ -205,11 +204,13 @@ namespace SelenicSparkApp.Controllers
             {
                 return BadRequest();
             }
+
             var user = await _userManager.FindByIdAsync(Id);
             if (user == null)
             {
                 return NotFound();
             }
+
             if (Action == "add")
             {
                 var checkRole = await _userManager.GetRolesAsync(user);
@@ -232,7 +233,6 @@ namespace SelenicSparkApp.Controllers
                     _logger.LogWarning($"Failed to add role \"{Role}\" to user \"{user.UserName}\", errLog: \"{errorLog}\"");
                     return BadRequest();
                 }
-                return RedirectToAction(nameof(EditUser), routeValues: new { id = Id });
             }
             else if (Action == "del")
             {
@@ -256,12 +256,12 @@ namespace SelenicSparkApp.Controllers
                     _logger.LogWarning($"Failed to delete role \"{Role}\" from user \"{user.UserName}\", errLog: \"{errorLog}\"");
                     return BadRequest();
                 }
-                return RedirectToAction(nameof(EditUser), routeValues: new { id = Id });
             }
             else
             {
                 return BadRequest();
             }
+            return RedirectToAction(nameof(EditUser), routeValues: new { id = Id });
         }
 
         // GET: /Admin/DeleteUser
