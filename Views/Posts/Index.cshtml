@@ -1,57 +1,56 @@
 ﻿@using Microsoft.AspNetCore.Identity
+@using System.Text.RegularExpressions;
 
 @inject SignInManager<IdentityUser> SignInManager
 @model IEnumerable<SelenicSparkApp.Models.Post>
 @{
-    ViewData["Title"] = "All posts";
+    ViewData["Title"] = "All";
 }
+
+<link rel="stylesheet" href="~/css/PostIndex.css" />
 
 @if (SignInManager.IsSignedIn(User))
 {
     <p style="text-align:center">
-        <a asp-action="Create" class="btn btn-primary">
+        <a asp-action="Create" class="btn btn-primary w-25">
             Post something...
         </a>
     </p>
 }
 @if (Model?.Count() > 0)
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>
-                    @Html.DisplayNameFor(model => model.Title)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Text)
-                </th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Author)
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Title)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Text)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Author)
-                    </td>
-                    <td>
-                        <a asp-action="Edit" asp-route-id="@item.PostId">Edit</a> 
-                        <a asp-action="Details" asp-route-id="@item.PostId">Details</a> 
-                        <a asp-action="Delete" asp-route-id="@item.PostId">Delete</a>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <div>
+        @foreach (var post in Model)
+        {
+            <div class="post-container">
+                <div class="padding-all-10">
+                    <div>
+                        <a asp-action="Details" asp-route-id="@post.PostId">@post.Title</a>
+                        <br>
+                        @if (!string.IsNullOrWhiteSpace(post.Text))
+                        {
+                            <p class="post-text">
+                                @{
+                                    post.Text = Regex.Replace(post.Text, "<.*?>", string.Empty); // Strip HTML tags
+                                    if (post.Text.Length > 450)
+                                    {
+                                        @(post.Text.Substring(0, 450) + "...")
+                                    }
+                                    else
+                                    {
+                                        @post.Text
+                                    }
+                                }
+                            </p>
+                        }
+                    </div>
+                    <div class="sm-text">
+                        <i>@post.Author at @post.CreatedDate.ToString("HH:mm dd.MM.yyyy")</i>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 }
 else
 {

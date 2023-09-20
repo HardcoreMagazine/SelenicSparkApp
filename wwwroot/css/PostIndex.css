@@ -1,0 +1,21 @@
+﻿.post-container {
+    border: dotted;
+    border-width: 1px;
+    border-color: black;
+    border-radius: 8px;
+    margin-block: 15px 15px;
+    background-color: #fefefe;
+}
+
+.sm-text {
+    font-size: 12px;
+}
+
+.post-text {
+    font-size: 12px;
+    margin-block: 4px 6px;
+}
+
+.padding-all-10 {
+    padding: 10px;
+}

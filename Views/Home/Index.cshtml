@@ -3,30 +3,21 @@
 @inject UserManager<IdentityUser> UserManager
 
 @{
-    ViewData["Title"] = "Home";
+    ViewData["Title"] = "Welcome";
 }
 
-@if (SignInManager.IsSignedIn(User))
-{
-    <div class="text-center">
-        <h1>Welcome back, @User.Identity?.Name!</h1>
-        <p>
-            This is a work-in-progress blog project with ASP.NET MVC that may find it's way outside localhost in the future.
-            <br />
-            <a href="https://github.com/HardcoreMagazine/SelenicSparkApp">Visit project page on Github</a>.
-        </p>
-    </div>
-}
-else
-{
-    <div class="text-center">
-        <h4 class="display-4">Hello & Welcome!</h4>
-        <p>
-            This is a work-in-progress blog project with ASP.NET MVC that may find it's way outside localhost in the future.
-            <br />
-            <a href="https://github.com/HardcoreMagazine/SelenicSparkApp">Visit project page on Github</a>.
-        </p>
-    </div>
-}
-
-@* HERE GOES PARIAL POSTS FEED: "HOT" OR "NEW" POSTS ONLY*@
+<div class="text-center">
+    @if (SignInManager.IsSignedIn(User))
+    {
+        <h2>Welcome back, @User.Identity?.Name</h2>
+    }
+    else
+    {
+        <h2 class="display-4">Hello & Welcome!</h2>
+    }
+    <p>
+        This is a work-in-progress blog project with ASP.NET MVC that may find it's way outside localhost in the future.
+        <br />
+        <a href="https://github.com/HardcoreMagazine/SelenicSparkApp" target="_blank">Visit project page on Github</a>.
+    </p>
+</div>

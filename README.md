@@ -19,4 +19,4 @@ Ready to deploy forum/blog web app written on C# using ASP.NET Core MVC, EFC, MS
 - Live website sample
 
 ## License:
-**[Apache 2.0](LICENSE)** - remember to modify license file when forking this repo!
+**[Apache 2.0 License](LICENSE)**

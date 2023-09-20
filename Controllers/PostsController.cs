@@ -29,7 +29,15 @@ namespace SelenicSparkApp.Controllers
         // GET: Posts
         public async Task<IActionResult> Index()
         {
-            return _context.Post != null ? View(await _context.Post.ToListAsync()) : Problem("Entity set 'ApplicationDbContext.Post' is null.");
+            if (!_context.Post.Any())
+            {
+                return View(); // Null view
+            }
+            else
+            {
+                var posts = await _context.Post.OrderByDescending(p => p.CreatedDate).ToListAsync();
+                return View(posts);
+            }
         }
 
         // GET: Posts/Search
