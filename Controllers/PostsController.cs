@@ -15,6 +15,7 @@ namespace SelenicSparkApp.Controllers
         private readonly Converter _converter;
         private const int MaxPostLen = 20_000;
         private const int PostsPerPage = 2; // 30
+        private const float PPP = 2f;
         private const int PostPreviewTextLen = 450;
 
         public PostsController(ApplicationDbContext context)
@@ -38,8 +39,8 @@ namespace SelenicSparkApp.Controllers
             }
             else
             {
-                //ViewBag.Page = page;
-                //ViewBag.Pages = _context.Post.Count();
+                ViewBag.Page = page;
+                ViewBag.Pages = Math.Ceiling((double)_context.Post.Count() / PPP);
 
                 int skip = (page - 1) * PostsPerPage;
                 
@@ -48,15 +49,15 @@ namespace SelenicSparkApp.Controllers
                     .Skip(skip)
                     .Take(PostsPerPage)
                     .ToListAsync();
-                // Process "Text" - so user don't have to
-                for (int i = 0; i < posts.Count; i++)
+                
+                for (int i = 0; i < posts.Count; i++) // Process "Post.Text"
                 {
                     if (!string.IsNullOrWhiteSpace(posts[i].Text))
                     {
                         posts[i].Text = Regex.Replace(posts[i].Text!, "<.*?>", string.Empty); // Strip all HTML tags
                         if (posts[i].Text!.Length > PostPreviewTextLen)
                         {
-                            posts[i].Text = posts[i].Text!.Substring(0, PostPreviewTextLen) + "...";
+                            posts[i].Text = posts[i].Text![..PostPreviewTextLen] + "...";
                         }
                     }
                 }

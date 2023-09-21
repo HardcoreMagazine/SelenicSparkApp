@@ -4,7 +4,7 @@
 @inject SignInManager<IdentityUser> SignInManager
 @model IEnumerable<SelenicSparkApp.Models.Post>
 @{
-    ViewData["Title"] = "All";
+    ViewData["Title"] = "All posts";
 }
 
 <link rel="stylesheet" href="~/css/PostIndex.css" />
@@ -46,3 +46,33 @@ else
         No posts available!
     </h4>
 }
+
+<div class="centered">
+    @if (ViewBag.Page > 2)
+    {
+        <p>
+            <a asp-controller="Posts" asp-action="Index" asp-route-page="1">&lt;&lt;</a>
+        </p>
+    }
+    @if (ViewBag.Page > 1)
+    {
+        <p>
+            <a asp-controller="Posts" asp-action="Index" asp-route-page="@(ViewBag.Page - 1)">&lt;</a>
+        </p>
+    }
+    <p>
+        @ViewBag.Page
+    </p>
+    @if (ViewBag.Page + 1 <= ViewBag.Pages)
+    {
+        <p>
+            <a asp-controller="Posts" asp-action="Index" asp-route-page="@(ViewBag.Page + 1)">&gt;</a>
+        </p>
+    }
+    @if (ViewBag.Page + 2 <= ViewBag.Pages)
+    {
+        <p>
+            <a asp-controller="Posts" asp-action="Index" asp-route-page="@ViewBag.Pages">&gt;&gt;</a>
+        </p>
+    }
+</div>
