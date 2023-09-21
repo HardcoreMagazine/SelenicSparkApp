@@ -41,6 +41,27 @@
     border-color: #0b5ed7;
 }
 
-.margin-inline-1 {
+.margin-line-1 {
     margin-inline: 3px 3px;
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button,
+input[type=number]::-webkit-search-cancel-button,
+input[type=number]::-webkit-search-decoration,
+input[type=number]::-webkit-search-results-button,
+input[type=number]::-webkit-search-results-decoration {
+    -webkit-appearance: none;
+    appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
+    text-align: center;
+}
+
+.btn-secondary.disabled {
+    border-color: #b6d3fe;
+    background-color: #b6d3fe;
 }

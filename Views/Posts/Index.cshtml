@@ -47,33 +47,52 @@ else
     </h4>
 }
 
-@if (ViewBag.Page != null)
+@* Page navigation bar *@
+@if (ViewBag.Page != null) 
 {
     <div class="centered margin-top-20">
         @if (ViewBag.Page > 2)
         {
-            <a asp-controller="Posts" asp-action="Index" asp-route-page="1" class="btn btn-primary route-btn margin-inline-1">
+            <a asp-controller="Posts" asp-action="Index" asp-route-page="1" class="btn btn-primary route-btn margin-line-1" disabled="disabled">
                 &lt;&lt;
             </a>
         }
+        else
+        {
+            <a class="btn btn-secondary route-btn margin-line-1 disabled"> &lt;&lt;</a>
+        }
         @if (ViewBag.Page > 1)
         {
-            <a asp-controller="Posts" asp-action="Index" asp-route-page="@(ViewBag.Page - 1)" class="btn btn-primary route-btn margin-inline-1">
+            <a asp-controller="Posts" asp-action="Index" asp-route-page="@(ViewBag.Page - 1)" class="btn btn-primary route-btn margin-line-1">
                 &lt;
             </a>
         }
-        <input type="text" value="@ViewBag.Page" class="route-page margin-inline-1" disabled />
+        else
+        {
+            <a class="btn btn-secondary route-btn margin-line-1 disabled">&lt;</a>
+        }
+        <form asp-controller="Posts" asp-action="Index" method="get" class="margin-line-1">
+            <input type="number" name="page" value="@ViewBag.Page" min="1" max="@ViewBag.Pages" class="route-page" />
+        </form>
         @if (ViewBag.Page + 1 <= ViewBag.Pages)
         {
-            <a asp-controller="Posts" asp-action="Index" asp-route-page="@(ViewBag.Page + 1)" class="btn btn-primary route-btn margin-inline-1">
+            <a asp-controller="Posts" asp-action="Index" asp-route-page="@(ViewBag.Page + 1)" class="btn btn-primary route-btn margin-line-1">
                 &gt;
             </a>
         }
+        else
+        {
+            <a class="btn btn-secondary route-btn margin-line-1 disabled">&gt;</a>
+        }
         @if (ViewBag.Page + 2 <= ViewBag.Pages)
         {
-            <a asp-controller="Posts" asp-action="Index" asp-route-page="@ViewBag.Pages" class="btn btn-primary route-btn margin-inline-1">
+            <a asp-controller="Posts" asp-action="Index" asp-route-page="@ViewBag.Pages" class="btn btn-primary route-btn margin-line-1">
                 &gt;&gt;
             </a>
+        }
+        else
+        {
+            <a class="btn btn-secondary route-btn margin-line-1 disabled">&gt;&gt;</a>
         }
     </div>
 }
