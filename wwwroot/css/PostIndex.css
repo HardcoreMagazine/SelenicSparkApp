@@ -19,3 +19,28 @@
 .padding-all-10 {
     padding: 10px;
 }
+
+.route-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 5px;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+    font-weight: 500;
+}
+
+.route-page {
+    width: 30px;
+    height: 30px;
+    border: thin;
+    border-style: solid;
+    border-radius: 5px;
+    border-color: #0b5ed7;
+}
+
+.margin-inline-1 {
+    margin-inline: 3px 3px;
+}

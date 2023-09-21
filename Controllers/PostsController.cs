@@ -15,7 +15,6 @@ namespace SelenicSparkApp.Controllers
         private readonly Converter _converter;
         private const int MaxPostLen = 20_000;
         private const int PostsPerPage = 2; // 30
-        private const float PPP = 2f;
         private const int PostPreviewTextLen = 450;
 
         public PostsController(ApplicationDbContext context)
@@ -39,11 +38,15 @@ namespace SelenicSparkApp.Controllers
             }
             else
             {
-                ViewBag.Page = page;
-                ViewBag.Pages = Math.Ceiling((double)_context.Post.Count() / PPP);
+                int pagesTotal = (int)Math.Ceiling((double)_context.Post.Count() / PostsPerPage);
 
-                int skip = (page - 1) * PostsPerPage;
+                if(page > pagesTotal)
+                {
+                    ViewBag.Page = null;
+                    return View();
+                }
                 
+                int skip = (page - 1) * PostsPerPage;
                 var posts = await _context.Post
                     .OrderByDescending(p => p.CreatedDate)
                     .Skip(skip)
@@ -61,6 +64,8 @@ namespace SelenicSparkApp.Controllers
                         }
                     }
                 }
+                ViewBag.Page = page;
+                ViewBag.Pages = pagesTotal;
                 return View(posts);
             }
         }

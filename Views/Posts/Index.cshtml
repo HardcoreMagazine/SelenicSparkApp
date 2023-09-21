@@ -47,32 +47,33 @@ else
     </h4>
 }
 
-<div class="centered">
-    @if (ViewBag.Page > 2)
-    {
-        <p>
-            <a asp-controller="Posts" asp-action="Index" asp-route-page="1">&lt;&lt;</a>
-        </p>
-    }
-    @if (ViewBag.Page > 1)
-    {
-        <p>
-            <a asp-controller="Posts" asp-action="Index" asp-route-page="@(ViewBag.Page - 1)">&lt;</a>
-        </p>
-    }
-    <p>
-        @ViewBag.Page
-    </p>
-    @if (ViewBag.Page + 1 <= ViewBag.Pages)
-    {
-        <p>
-            <a asp-controller="Posts" asp-action="Index" asp-route-page="@(ViewBag.Page + 1)">&gt;</a>
-        </p>
-    }
-    @if (ViewBag.Page + 2 <= ViewBag.Pages)
-    {
-        <p>
-            <a asp-controller="Posts" asp-action="Index" asp-route-page="@ViewBag.Pages">&gt;&gt;</a>
-        </p>
-    }
-</div>
+@if (ViewBag.Page != null)
+{
+    <div class="centered margin-top-20">
+        @if (ViewBag.Page > 2)
+        {
+            <a asp-controller="Posts" asp-action="Index" asp-route-page="1" class="btn btn-primary route-btn margin-inline-1">
+                &lt;&lt;
+            </a>
+        }
+        @if (ViewBag.Page > 1)
+        {
+            <a asp-controller="Posts" asp-action="Index" asp-route-page="@(ViewBag.Page - 1)" class="btn btn-primary route-btn margin-inline-1">
+                &lt;
+            </a>
+        }
+        <input type="text" value="@ViewBag.Page" class="route-page margin-inline-1" disabled />
+        @if (ViewBag.Page + 1 <= ViewBag.Pages)
+        {
+            <a asp-controller="Posts" asp-action="Index" asp-route-page="@(ViewBag.Page + 1)" class="btn btn-primary route-btn margin-inline-1">
+                &gt;
+            </a>
+        }
+        @if (ViewBag.Page + 2 <= ViewBag.Pages)
+        {
+            <a asp-controller="Posts" asp-action="Index" asp-route-page="@ViewBag.Pages" class="btn btn-primary route-btn margin-inline-1">
+                &gt;&gt;
+            </a>
+        }
+    </div>
+}
