@@ -1,0 +1,30 @@
+﻿.post-container {
+    border: dotted;
+    border-width: 1px;
+    border-color: black;
+    border-radius: 8px;
+    margin-block: 15px 15px;
+    background-color: #fefefe;
+}
+
+.sm-text {
+    font-size: 12px;
+}
+
+.post-text {
+    font-size: 12px;
+    margin-block: 4px 6px;
+}
+
+.search-form {
+    display: inline-flex;
+}
+
+.radiobutton {
+    margin-block: 10px 0px;
+    margin-inline: 0px 10px;
+}
+
+.searchbox-margin {
+    margin-inline: 2px 2px;
+}

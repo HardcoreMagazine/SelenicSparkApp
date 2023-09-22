@@ -14,8 +14,9 @@ namespace SelenicSparkApp.Controllers
         private readonly ApplicationDbContext _context;
         private readonly Converter _converter;
         private const int MaxPostLen = 20_000;
-        private const int PostsPerPage = 2; // 30
+        private const int PostsPerPage = 25; // Default: 25
         private const int PostPreviewTextLen = 450;
+        private const int MaxSearchPhraseLen = 64;
 
         public PostsController(ApplicationDbContext context)
         {
@@ -53,19 +54,11 @@ namespace SelenicSparkApp.Controllers
                     .Take(PostsPerPage)
                     .ToListAsync();
                 
-                for (int i = 0; i < posts.Count; i++) // Process "Post.Text"
-                {
-                    if (!string.IsNullOrWhiteSpace(posts[i].Text))
-                    {
-                        posts[i].Text = Regex.Replace(posts[i].Text!, "<.*?>", string.Empty); // Strip all HTML tags
-                        if (posts[i].Text!.Length > PostPreviewTextLen)
-                        {
-                            posts[i].Text = posts[i].Text![..PostPreviewTextLen] + "...";
-                        }
-                    }
-                }
+                ProcessText(ref posts);
+
                 ViewBag.Page = page;
                 ViewBag.Pages = pagesTotal;
+
                 return View(posts);
             }
         }
@@ -75,7 +68,7 @@ namespace SelenicSparkApp.Controllers
         {
             // Initialize input values
             ViewBag.SearchPhrase = "";
-            ViewBag.Filter = "Titles";
+            ViewBag.Filter = "Everything";
             return View();
         }
 
@@ -87,32 +80,60 @@ namespace SelenicSparkApp.Controllers
             // See './Views/Posts/Search.cshtml' for more
             ViewBag.SearchPhrase = SearchPhrase;
             ViewBag.Filter = Filter;
-            switch (Filter)
+
+            // Null, length, db checking
+            if (string.IsNullOrWhiteSpace(SearchPhrase))
             {
-                case "Titles":
-                    return _context.Post != null ?
-                        View("Search", await _context.Post
-                        .Where(p => p.Title.Contains(SearchPhrase))
-                        .ToListAsync()) : Problem("Entity set 'ApplicationDbContext.Post'  is null.");
-                case "Text":
-                    return _context.Post != null ?
-                        View("Search", await _context.Post
-                        .Where(p => p.Text.Contains(SearchPhrase))
-                        .ToListAsync()) : Problem("Entity set 'ApplicationDbContext.Post'  is null.");
-                case "Author":
-                    return _context.Post != null ?
-                        View("Search", await _context.Post
-                        .Where(p => p.Author.Contains(SearchPhrase))
-                        .ToListAsync()) : Problem("Entity set 'ApplicationDbContext.Post'  is null.");
-                default:
-                    return _context.Post != null ?
-                        View("Search", await _context.Post
-                        .Where(p => p.Title.Contains(SearchPhrase) || p.Text.Contains(SearchPhrase) || p.Author.Contains(SearchPhrase))
-                        .ToListAsync()) : Problem("Entity set 'ApplicationDbContext.Post'  is null.");
+                return View("Search", new List<Post>());
+            }
+            else if (SearchPhrase.Length > MaxSearchPhraseLen)
+            {
+                return View("Search", new List<Post>());
+            }
+            else if (!_context.Post.Any())
+            {
+                return View("Search", new List<Post>());
+            }
+
+            // Filter out results
+            if (Filter == "Titles")
+            {
+                var posts = await _context.Post
+                    .Where(p => p.Title.Contains(SearchPhrase))
+                    .ToListAsync();
+                ProcessText(ref posts); // 'ProcessText' function returns void!!
+                return View("Search", posts);
+            }
+            else if (Filter == "Author")
+            {
+                var posts = await _context.Post
+                    .Where(p => p.Author.Contains(SearchPhrase))
+                    .ToListAsync();
+                ProcessText(ref posts);
+                return View("Search", posts);
+            }
+            else if (Filter == "Text")
+            {
+                var posts = await _context.Post
+                    .Where(p => string.IsNullOrWhiteSpace(p.Text) ? false : p.Text.Contains(SearchPhrase))
+                    .ToListAsync();
+                ProcessText(ref posts);
+                return View("Search", posts);
+            }
+            else
+            {
+                var posts = await _context.Post
+                    .Where(p =>
+                        p.Title.Contains(SearchPhrase) ||
+                        (string.IsNullOrWhiteSpace(p.Text) ? false : p.Text.Contains(SearchPhrase)) ||
+                        p.Author.Contains(SearchPhrase))
+                    .ToListAsync();
+                ProcessText(ref posts);
+                return View("Search", posts);
             }
         }
 
-        // GET: Posts/Details/5
+        // GET: Posts/Details
         public async Task<IActionResult> Details(int? id)
         {
             if (id == null || _context.Post == null)
@@ -302,6 +323,29 @@ namespace SelenicSparkApp.Controllers
             else
             {
                 return Forbid();
+            }
+        }
+
+        /// <summary>
+        /// Processes 'Post.Text' field for provided list of posts, 
+        /// removing HTML tags and trimming it by PostPreviewTextLen
+        /// </summary>
+        /// <param name="posts">Reference (pointer) to posts list</param>
+        private void ProcessText(ref List<Post>? posts)
+        {
+            if (posts != null)
+            {
+                for (int i = 0; i < posts.Count; i++)
+                {
+                    if (!string.IsNullOrWhiteSpace(posts[i].Text))
+                    {
+                        posts[i].Text = Regex.Replace(posts[i].Text!, "<.*?>", string.Empty); // Strip all HTML tags
+                        if (posts[i].Text!.Length > PostPreviewTextLen)
+                        {
+                            posts[i].Text = posts[i].Text![..PostPreviewTextLen] + "...";
+                        }
+                    }
+                }
             }
         }
     }

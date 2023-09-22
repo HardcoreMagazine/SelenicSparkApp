@@ -4,40 +4,37 @@
     ViewData["Title"] = "Search";
 }
 
-<style>
-    .form-control {
-        display: inline;
-        width: auto;
-    }
-    .btn-primary {
-        border-radius: 0.25rem;
-        block-size: 2.4rem;
-    }
-</style>
+<link rel="stylesheet" href="~/css/PostSearch.css" />
 
 <h3>Search posts</h3>
 <hr />
 <div class="row">
     <div class="form-inline">
         <form asp-action="SearchResults">
-            <div class="form-group">
-                <label for="SearchPhrase" class="control-label"></label>
-                <input name="SearchPhrase" class="form-control" size="48" maxlength="48" value="@ViewBag.SearchPhrase" />
-                
-                <input type="submit" value="Find!" class="btn-primary" />
+            <div class="form-group">               
+                <div class="search-form">
+                    <input name="SearchPhrase" class="form-control searchbox-margin" size="64" maxlength="64" value="@ViewBag.SearchPhrase" placeholder="Enter keywords..." />
+                    <input type="submit" value="Find!" class="btn btn-primary searchbox-margin" />
+                </div>
                 <br />
-
-                <input name="Filter" type="radio" id="titlesChoice" value="Titles" @(ViewBag.Filter == "Titles" ? "checked" : "") />
-                <label for="titlesChoice">Titles</label>
-
-                <input name="Filter" type="radio" id="textChoice" value="Text" @(ViewBag.Filter == "Text" ? "checked" : "") />
-                <label for="textChoice">Text</label>
-
-                <input name="Filter" type="radio" id="authorChoice" value="Author" @(ViewBag.Filter == "Author" ? "checked" : "") />
-                <label for="authorChoice">Author</label>
-
-                <input name="Filter" type="radio" id="everythingChoice" value="Everything" @(ViewBag.Filter == "Everything" ? "checked" : "") />
-                <label for="everythingChoice">Everything</label>
+                <div class="group-line">
+                    <div class="radiobutton">
+                        <input name="Filter" type="radio" id="everythingChoice" value="Everything" @(ViewBag.Filter == "Everything" ? "checked" : "") />
+                        <label for="everythingChoice">Everything</label>
+                    </div>
+                    <div class="radiobutton">
+                        <input name="Filter" type="radio" id="titlesChoice" value="Titles" @(ViewBag.Filter == "Titles" ? "checked" : "") />
+                        <label for="titlesChoice">Titles</label>
+                    </div>
+                    <div class="radiobutton">
+                        <input name="Filter" type="radio" id="textChoice" value="Text" @(ViewBag.Filter == "Text" ? "checked" : "") />
+                        <label for="textChoice">Text</label>
+                    </div>
+                    <div class="radiobutton">
+                        <input name="Filter" type="radio" id="authorChoice" value="Author" @(ViewBag.Filter == "Author" ? "checked" : "") />
+                        <label for="authorChoice">Author</label>
+                    </div>
+                </div>
             </div>
         </form>
     </div>
@@ -45,38 +42,26 @@
 <hr />
 @if (Model?.Count() > 0) @* Show all results if results.Count > 0 *@
 {
-    @* Temporal solution. Post feed must be scrollable and not in form of Table. *@
-    <table class="table">
-        <thead>
-            <tr>
-                <th>
-                    Title
-                </th>
-                <th>
-                    Author
-                </th>
-                <th>
-                    Text
-                </th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>
-                        <a asp-action="Details" asp-route-id="@item.PostId">@item.Title</a>
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Author)
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Text.Substring(0, 50))
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <div>
+        @foreach (var post in Model)
+        {
+            <div class="post-container">
+                <div class="padding-all-10">
+                    <div>
+                        <a asp-action="Details" asp-route-id="@post.PostId">@post.Title</a>
+                        <br>
+                        @if (!string.IsNullOrWhiteSpace(post.Text))
+                        {
+                            <p class="post-text">@post.Text</p>
+                        }
+                    </div>
+                    <div class="sm-text">
+                        <i>@post.Author at @post.CreatedDate.ToString("HH:mm dd.MM.yyyy")</i>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 }
 else @if (Model != null) @* Show "not found" if search was called, but no results found *@
 {

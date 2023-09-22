@@ -37,12 +37,20 @@ body {
     padding-bottom: 20px;
 }
 
+.padding-all-10 {
+    padding: 10px 10px 10px 10px;
+}
+
 .margin-top-10 {
     margin-top: 10px;
 }
 
 .margin-top-20 {
     margin-top: 20px;
+}
+
+.group-line {
+    display: inline-flex;
 }
 
 .centered {
