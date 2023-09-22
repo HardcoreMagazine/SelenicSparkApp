@@ -6,21 +6,26 @@ using SelenicSparkApp.Data;
 using SelenicSparkApp.Models;
 using ReverseMarkdown;
 using System.Text.RegularExpressions;
+using Microsoft.AspNetCore.Identity;
 
 namespace SelenicSparkApp.Controllers
 {
     public class PostsController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<IdentityUser> _userMgr;
         private readonly Converter _converter;
+        private readonly ILogger<PostsController> _logger;
         private const int MaxPostLen = 20_000;
         private const int PostsPerPage = 25; // Default: 25
         private const int PostPreviewTextLen = 450;
         private const int MaxSearchPhraseLen = 64;
 
-        public PostsController(ApplicationDbContext context)
+        public PostsController(ApplicationDbContext context, UserManager<IdentityUser> userMgr, ILogger<PostsController> logger)
         {
             _context = context;
+            _userMgr = userMgr;
+            _logger = logger;
 
             var config = new Config
             {
@@ -193,6 +198,7 @@ namespace SelenicSparkApp.Controllers
                 _context.Add(post);
                 await _context.SaveChangesAsync();
 
+                _logger.LogInformation($"User \"{User.Identity?.Name}\" CREATED post: \"{post.Title}\". ");
                 return RedirectToAction(nameof(Details), routeValues: new { id = post.PostId });
             }
             return View(post); // Return to self
@@ -212,11 +218,25 @@ namespace SelenicSparkApp.Controllers
             {
                 return NotFound();
             }
-            
-            if (post.Author ==  User.Identity?.Name || User.IsInRole("Admin") || User.IsInRole("Moderator"))
+
+            if (string.IsNullOrWhiteSpace(User.Identity?.Name)) // Null check
+            {
+                return Forbid();
+            }
+
+            var user = await _userMgr.FindByNameAsync(User.Identity.Name);
+            if (user == null) // Another null check
+            {
+                return Forbid();
+            }
+
+            if (post.Author ==  user.UserName || User.IsInRole("Admin") || User.IsInRole("Moderator"))
             {
                 // Reverse-translate HTML to Markdown
-                post.Text = _converter.Convert(post.Text);
+                if (!string.IsNullOrWhiteSpace(post.Text))
+                {
+                    post.Text = _converter.Convert(post.Text);
+                }
                 return View(post);
             }
             else
@@ -231,7 +251,7 @@ namespace SelenicSparkApp.Controllers
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("PostId,Title,Text")] Post partialPost)
+        public async Task<IActionResult> Edit(int id, bool? GiveWarning, [Bind("PostId,Title,Text")] Post partialPost)
         {
             if (id != partialPost.PostId)
             {
@@ -267,9 +287,43 @@ namespace SelenicSparkApp.Controllers
                         .Build();
                     partialPost.Text = Markdown.ToHtml(partialPost.Text, pipeline);
                 }
+
+                // Warn user if GiveWarning flag is set and equals to 'true'
+                if (GiveWarning == true) // GiveWarning is nullable
+                {
+                    var user = await _userMgr.FindByNameAsync(post.Author);
+                    if (user != null)
+                    {
+                        var roles = await _userMgr.GetRolesAsync(user);
+                        // Users with 'Admin' and 'Moderator' role will not recieve any warnings
+                        if (roles != null && !(roles.Contains("Admin") || roles.Contains("Moderator")))
+                        {
+                            var userExtra = await _context.IdentityUserExpander.FindAsync(user.Id);
+                            // Cannot be null since user logged in at least once and posted something
+                            // But since we're using visual studio and I'm annoyed by curvy underline...
+                            if (userExtra != null)
+                            {
+                                userExtra.UserWarningsCount += 1;
+                                // Ban user for 7d on every fifth warning
+                                if (userExtra.UserWarningsCount != 0 & userExtra.UserWarningsCount % 5 == 0)
+                                {
+                                    user.LockoutEnd = DateTime.UtcNow.AddDays(7);
+                                }
+                                await _userMgr.UpdateAsync(user); // We probably don't need that. Probably.
+                                _logger.LogInformation($"User \"{User.Identity?.Name}\" WARNED user: \"{post.Author}\". ");
+                            }
+                        }
+                        else
+                        {
+                            _logger.LogInformation($"User \"{User.Identity?.Name}\" tried to WARN user: \"{post.Author}\". ");
+                        }
+                    }
+                }
+
                 post.Text = partialPost.Text;
                 _context.Post.Update(post);
                 await _context.SaveChangesAsync();
+                _logger.LogInformation($"User \"{User.Identity?.Name}\" EDITED post: \"{post.Title}\". ");
                 return RedirectToAction(nameof(Details), new { id = partialPost.PostId });
             }
         }
@@ -303,7 +357,7 @@ namespace SelenicSparkApp.Controllers
         [Authorize]
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id, bool? GiveWarning)
         {
             if (!_context.Post.Any())
             {
@@ -314,16 +368,47 @@ namespace SelenicSparkApp.Controllers
             {
                 return NotFound();
             }
-            if (post.Author == User.Identity?.Name || User.IsInRole("Admin") || User.IsInRole("Moderator"))
-            {
-                _context.Post.Remove(post);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
-            else
+
+            if (post.Author != User.Identity?.Name & !User.IsInRole("Admin") & !User.IsInRole("Moderator"))
             {
                 return Forbid();
             }
+
+            // Warn user if GiveWarning flag is set and equals to 'true'
+            if (GiveWarning == true) // GiveWarning is nullable
+            {
+                var user = await _userMgr.FindByNameAsync(post.Author);
+                if (user != null)
+                {
+                    var roles = await _userMgr.GetRolesAsync(user);
+                    // Users with 'Admin' and 'Moderator' role will not recieve any warnings
+                    if (roles != null && !(roles.Contains("Admin") || roles.Contains("Moderator")))
+                    {
+                        var userExtra = await _context.IdentityUserExpander.FindAsync(user.Id);
+                        // Cannot be null since user logged in at least once and posted something
+                        // But since we're using visual studio and I'm annoyed by curvy underline...
+                        if (userExtra != null) 
+                        {
+                            userExtra.UserWarningsCount += 1;
+                            // Ban user for 7d on every fifth warning
+                            if (userExtra.UserWarningsCount != 0 & userExtra.UserWarningsCount % 5 == 0)
+                            {
+                                user.LockoutEnd = DateTime.UtcNow.AddDays(7);
+                            }
+                            await _userMgr.UpdateAsync(user); // We probably don't need that. Probably.
+                            _logger.LogInformation($"User \"{User.Identity?.Name}\" WARNED user: \"{post.Author}\". ");
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogInformation($"User \"{User.Identity?.Name}\" tried to WARN user: \"{post.Author}\". ");
+                    }
+                }
+            }
+            _context.Post.Remove(post);
+            await _context.SaveChangesAsync();
+            _logger.LogInformation($"User \"{User.Identity?.Name}\" DELETED post: \"{post.Title}\". ");
+            return RedirectToAction(nameof(Index));
         }
 
         /// <summary>

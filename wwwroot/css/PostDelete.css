@@ -1,0 +1,21 @@
+﻿.btn-edit {
+    background-color: #00ffff;
+    border-color: #00ffff;
+    color: darkblue;
+}
+
+.btn-edit:hover {
+    background-color: #1ed0d0;
+    border-color: #1ed0d0;
+    color: darkblue;
+}
+
+.btn-edit:active {
+    background-color: #1ed0d0;
+    border-color: #1ed0d0;
+    color: darkblue;
+}
+
+.add-margin {
+    margin-inline: 2px 2px !important;
+}

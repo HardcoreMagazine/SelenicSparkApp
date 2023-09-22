@@ -20,6 +20,11 @@
             }
             <textarea asp-for="Text" id="tbe" placeholder="Text (optional)"></textarea>
             <input type="submit" value="Save changes" class="btn btn-primary" />
+            @if (User.IsInRole("Moderator") || User.IsInRole("Admin"))
+            {
+                <input type="hidden" name="GiveWarning" value="true" />
+                <input type="submit" value="Save & Warn user" class="btn btn-danger" />
+            }
         </form>
     </div>
     <div>

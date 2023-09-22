@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using SelenicSparkApp.CustomClasses;
+using SelenicSparkApp.CustomClasses.SelenicSparkApp.CustomClasses;
 using SelenicSparkApp.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -44,8 +45,9 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
-//app.UseAuthentication();
+app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<UserBanManager>();
 
 app.MapControllerRoute(
     name: "default",
@@ -99,5 +101,6 @@ using (var scope = app.Services.CreateScope())
         }
     }
 }
+
 
 app.Run();

@@ -4,36 +4,37 @@
     ViewData["Title"] = "Delete";
 }
 
-<h1>Delete</h1>
+<link rel="stylesheet" href="~/css/PostDelete.css" />
 
 <h3>Are you sure you want to delete this?</h3>
 <div>
-    <h4>Post</h4>
+    <div>
+        <h1>@Model.Title</h1>
+        By <i>@Model.Author</i> at @Model.CreatedDate.ToString("HH:mm dd.MM.yyyy")
+        <hr />
+        @Html.Raw(Model.Text)
+    </div>
     <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Title)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Title)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Text)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Text)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Author)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Author)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="hidden" asp-for="PostId" />
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
+    <p style="color: darkred;">
+        Click "Delete" button to confirm. Note that <strong>this action cannot be undone</strong>.
+    </p>
+    <div class="group-line">
+        <a asp-action="Edit" asp-route-id="@Model.PostId" class="btn btn-primary btn-edit add-margin">Edit post instead</a>      
+        @if (User.IsInRole("Admin") || User.IsInRole("Moderator"))
+        {
+            <form asp-action="Delete">
+                <input type="hidden" asp-for="PostId" />
+                <input type="hidden" name="GiveWarning" value="true" />
+                <input type="submit" value="Delete & Warn user" class="btn btn-danger add-margin" />
+            </form>
+        }
+        else
+        {
+            <form asp-action="Delete">
+                <input type="hidden" asp-for="PostId" />
+                <input type="submit" value="Delete" class="btn btn-danger add-margin" />
+            </form>
+        }
+        <a asp-action="Details" asp-route-id="@Model.PostId" class="btn btn-primary add-margin">Cancel</a>
+    </div>
 </div>
