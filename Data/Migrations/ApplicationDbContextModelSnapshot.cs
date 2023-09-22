@@ -242,7 +242,7 @@ namespace SelenicSparkApp.Data.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("IdentityUserExpander");
+                    b.ToTable("IdentityUserExpander", (string)null);
                 });
 
             modelBuilder.Entity("SelenicSparkApp.Models.Post", b =>
@@ -269,7 +269,7 @@ namespace SelenicSparkApp.Data.Migrations
 
                     b.HasKey("PostId");
 
-                    b.ToTable("Post");
+                    b.ToTable("Post", (string)null);
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
