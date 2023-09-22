@@ -2,8 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 #nullable disable
 
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 using System.Text.Encodings.Web;
@@ -109,12 +107,17 @@ namespace SelenicSparkApp.Areas.Identity.Pages.Account
         /// <returns>true if username is valid, else - false</returns>
         private async Task<bool> CheckUserNameValidAsync()
         {
+            if (string.IsNullOrWhiteSpace(Input.UserName))
+            {
+                return false;
+            }
+
             if (await _userManager.FindByNameAsync(Input.UserName) == null)
             {
                 if (Input.UserName != Input.Email & !string.IsNullOrWhiteSpace(Input.UserName))
                 {
                     var lowercase = Input.UserName.ToLower();
-                    if (lowercase.Contains("admin") || lowercase.Contains("moderator") || lowercase.Contains("support"))
+                    if (lowercase.Contains("admin") || lowercase.Contains("moderator"))
                         return false;
                     else
                         return true;
@@ -123,6 +126,28 @@ namespace SelenicSparkApp.Areas.Identity.Pages.Account
                 {
                     return false;
                 }
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Checks user email validity: it must not be empty, contain only whitespaces or exist in user database
+        /// </summary>
+        /// <returns>true if email is valid, else - false</returns>
+        private async Task<bool> CheckUserEmailValidAsync()
+        {
+            if (string.IsNullOrWhiteSpace(Input.Email))
+            {
+                return false;
+            }
+
+            var user = await _userManager.FindByEmailAsync(Input.Email);
+            if (user == null)
+            {
+                return true;
             }
             else
             {
@@ -143,20 +168,25 @@ namespace SelenicSparkApp.Areas.Identity.Pages.Account
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
             if (ModelState.IsValid)
             {
-                var user = CreateUser();
-
-                // -- Double-check username, set it if valid --
                 if (!await CheckUserNameValidAsync())
                 {
                     RegStatusMessage = 
                         $"Error: " +
                         $"Username \"{Input.UserName}\" is already taken or not valid. " +
                         $"Username must be 4 to 24 characters long and consist of " +
-                        $"alphabetic and/or special charaters and/or numbers." +
-                        $"Usernames containing words \"admin\", \"moderator\",\"support\" " +
-                        $"are not allowed.";
+                        $"alphabetic and/or special charaters and/or numbers.";
                     return Page();
                 }
+
+                if (!await CheckUserEmailValidAsync())
+                {
+                    RegStatusMessage =
+                        $"Error: " +
+                        $"Email \"{Input.Email}\" is already taken or not valid.";
+                    return Page();
+                }
+
+                var user = CreateUser();
 
                 await _userStore.SetUserNameAsync(user, Input.UserName, CancellationToken.None);
                 

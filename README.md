@@ -8,6 +8,7 @@ Ready to deploy forum/blog web app written on C# using ASP.NET Core MVC, EFC, MS
 - Automatic user's account lock on 5 bad login attemps (defaults to 15 minutes)
 - Built-in admin panel that allows to manage users and roles
 - Built-in basic moderation tools: warn user, delete post/comment, ban user
+- Built-in user account page (edit username, password)
 - Simple blog-like posts multi-page UI: create (markdown supported!), view, edit, delete
 - Search for posts (by title, text, author - or all at once)
 
