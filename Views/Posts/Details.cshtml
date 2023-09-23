@@ -1,28 +1,35 @@
 ﻿@using Microsoft.AspNetCore.Identity
 
 @inject SignInManager<IdentityUser> SignInManager
-@model SelenicSparkApp.Models.Post
+@model SelenicSparkApp.Views.Posts.DetailsModel
 @{
-    ViewData["Title"] = Model.Title;
+    ViewData["Title"] = Model.Post.Title;
 }
 
 <div>
     <div>
-        <h1>@Model.Title</h1>
-        By <i>@Model.Author</i> at @Model.CreatedDate.ToString("HH:mm dd.MM.yyyy")
+        <h1>@Model.Post.Title</h1>
+        By <i>@Model.Post.Author</i> at @Model.Post.CreatedDate.ToString("HH:mm dd.MM.yyyy")
         <hr />
-        @Html.Raw(Model.Text)
+        @Html.Raw(Model.Post.Text)
     </div>
     <div>
         <hr />
         @if (SignInManager.IsSignedIn(User))
         {
-            @if (User.Identity?.Name == Model.Author || User.IsInRole("Moderator") || User.IsInRole("Admin"))
+            @if (User.Identity?.Name == Model.Post.Author || User.IsInRole("Moderator") || User.IsInRole("Admin"))
             {
-                <a asp-action="Edit" asp-route-id="@Model?.PostId" class="btn btn-primary height-1">Edit</a>
-                <a asp-action="Delete" asp-route-id="@Model?.PostId" class="btn btn-danger padding-bottom-10 height-1">Delete</a>
+                <a asp-action="Edit" asp-route-id="@Model?.Post.PostId" class="btn btn-primary height-1">Edit</a>
+                <a asp-action="Delete" asp-route-id="@Model?.Post.PostId" class="btn btn-danger padding-bottom-10 height-1">Delete</a>
             }
         }
         <a asp-action="Index" class="btn btn-secondary height-1">Back to all posts</a> 
+    </div>
+    <br />
+    <div>
+        <h4>Comments</h4>
+        <div>
+            @await Html.PartialAsync("Comments/_CommentsPartial", Model)
+        </div>
     </div>
 </div>

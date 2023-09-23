@@ -9,7 +9,9 @@ namespace SelenicSparkApp.Data
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : base(options) {}
 
-        public DbSet<SelenicSparkApp.Models.Post> Post { get; set; } = default!;
+        public DbSet<SelenicSparkApp.Models.Post> Post { get; set; }
+
+        public DbSet<SelenicSparkApp.Models.Comment> Comment { get; set; }
         
         public DbSet<SelenicSparkApp.Models.IdentityUserExpander> IdentityUserExpander { get; set; }
 

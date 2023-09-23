@@ -7,6 +7,7 @@ using SelenicSparkApp.Models;
 using ReverseMarkdown;
 using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Identity;
+using SelenicSparkApp.Views.Posts;
 
 namespace SelenicSparkApp.Controllers
 {
@@ -46,19 +47,19 @@ namespace SelenicSparkApp.Controllers
             {
                 int pagesTotal = (int)Math.Ceiling((double)_context.Post.Count() / PostsPerPage);
 
-                if(page > pagesTotal)
+                if (page > pagesTotal)
                 {
                     ViewBag.Page = null;
                     return View();
                 }
-                
+
                 int skip = (page - 1) * PostsPerPage;
                 var posts = await _context.Post
                     .OrderByDescending(p => p.CreatedDate)
                     .Skip(skip)
                     .Take(PostsPerPage)
                     .ToListAsync();
-                
+
                 ProcessText(ref posts);
 
                 ViewBag.Page = page;
@@ -146,14 +147,40 @@ namespace SelenicSparkApp.Controllers
                 return NotFound();
             }
 
-            var post = await _context.Post
-                .FirstOrDefaultAsync(m => m.PostId == id);
+            var post = await _context.Post.FindAsync(id);
             if (post == null)
             {
                 return NotFound();
             }
 
-            return View(post);
+            var comments = await _context.Comment.Where(c => c.PostId == post.PostId).ToListAsync();
+
+            var fullPost = new DetailsModel { Post = post, Comments = comments };
+            return View(fullPost);
+        }
+
+        // POST: Post/Details -- comment
+        [Authorize]
+        [HttpPost, ActionName("Comment")]
+        public async Task<IActionResult> PostComment([Bind("PostId, Author, Text")] Comment partialComment)
+        {
+            if (string.IsNullOrWhiteSpace(partialComment.Text) || string.IsNullOrWhiteSpace(partialComment.Author))
+            {
+                return BadRequest();
+            }
+
+            var comment = new Comment
+            {
+                CommentId = "",
+                PostId = partialComment.PostId,
+                Author = partialComment.Author,
+                Text = partialComment.Text,
+                CreatedDate = DateTimeOffset.UtcNow
+            };
+            await _context.Comment.AddAsync(comment);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Details), new { id = partialComment.PostId });
         }
 
         // GET: Posts/Create
@@ -195,7 +222,7 @@ namespace SelenicSparkApp.Controllers
                         .Build();
                     post.Text = Markdown.ToHtml(post.Text, pipeline);
                 }
-                _context.Add(post);
+                _context.Post.Add(post);
                 await _context.SaveChangesAsync();
 
                 _logger.LogInformation($"User \"{User.Identity?.Name}\" CREATED post: \"{post.Title}\". ");

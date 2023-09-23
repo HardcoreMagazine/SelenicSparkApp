@@ -1,0 +1,17 @@
+﻿.comment-box {
+    justify-content: center;
+    display: flex;
+}
+
+.comment {
+    border: dotted;
+    border-radius: 8px;
+    padding: 4px;
+}
+
+.small-text {
+    font-weight: 200;
+}
+
+.btn-micro {
+}

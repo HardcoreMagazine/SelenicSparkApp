@@ -1,20 +1,49 @@
-﻿<div>
-    <div>Text input form</div>
+﻿@model SelenicSparkApp.Views.Posts.DetailsModel
+
+<link rel="stylesheet" href="~/css/Comments.css" />
+
+<div>
     <div>
-        Comments (lazy loading?): 
-        <div>
-            [Title] Author
-        </div>
-        <div>
-            [Body] Text
-        </div>
-        <div>
-            <div>
-                [Footer] DateTime 
-            </div>
-            <div>
-                and delete-edit-deletewarn-editwarn actions
-            </div>
-        </div>
+        <form asp-action="Comment">
+            <input type="hidden" name="PostId" value="@Model.Post.PostId"/>
+            <input type="hidden" name="Author" value="@User.Identity?.Name"/>
+            <textarea name="Text"></textarea>
+            <br />
+            <input type="submit" value="Comment" class="btn btn-primary" />
+        </form>
     </div>
+    @if (Model.Comments?.Count > 0)
+    {
+        <div class="comment-box">
+            @foreach (var comment in Model.Comments)
+            {
+                <div class="comment">
+                    <strong>@comment.Author</strong>
+                    <p>@comment.Text</p>
+                    <div class="group-line margin-line-1">
+                        <p class="small-text">Posted on @comment.CreatedDate.ToString("HH:mm dd.MM.yyyy")</p>
+                        @if (User.Identity?.Name == comment.Author)
+                        {
+                            <form asp-action="DeleteComment">
+                                <input type="hidden" value="@comment.CommentId" />
+                                <input type="submit" value="Delete" class="btn btn-danger btn-micro" />
+                            </form>
+                        }
+                        @if (User.IsInRole("Admin") || User.IsInRole("Moderator"))
+                        {
+                            <form asp-action="DeleteComment">
+                                <input type="hidden" value="@comment.CommentId" />
+                                <input type="hidden" name="GiveWarning" value="true"/>
+                                <input type="submit" value="Delete & Warn" class="btn btn-danger btn-micro" />
+                            </form>
+                        }
+                    </div>
+                </div>       
+            }
+        </div>
+    }
+    else
+    {
+        <div>No one commented on this topic yet. Be first!</div>
+    }
 </div>
