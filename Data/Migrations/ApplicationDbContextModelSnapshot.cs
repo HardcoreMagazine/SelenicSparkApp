@@ -226,8 +226,11 @@ namespace SelenicSparkApp.Data.Migrations
 
             modelBuilder.Entity("SelenicSparkApp.Models.Comment", b =>
                 {
-                    b.Property<string>("CommentId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("CommentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CommentId"));
 
                     b.Property<string>("Author")
                         .IsRequired()

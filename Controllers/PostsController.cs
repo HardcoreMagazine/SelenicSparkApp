@@ -17,9 +17,17 @@ namespace SelenicSparkApp.Controllers
         private readonly UserManager<IdentityUser> _userMgr;
         private readonly Converter _converter;
         private readonly ILogger<PostsController> _logger;
+
+        private const int MinPostTitleLen = 4;
+        private const int MaxTitleLen = 300;
         private const int MaxPostLen = 20_000;
+
+        private const int MinCommentLen = 3;
+        private const int MaxCommentLen = 3000;
+
         private const int PostsPerPage = 25; // Default: 25
         private const int PostPreviewTextLen = 450;
+
         private const int MaxSearchPhraseLen = 64;
 
         public PostsController(ApplicationDbContext context, UserManager<IdentityUser> userMgr, ILogger<PostsController> logger)
@@ -153,7 +161,10 @@ namespace SelenicSparkApp.Controllers
                 return NotFound();
             }
 
-            var comments = await _context.Comment.Where(c => c.PostId == post.PostId).ToListAsync();
+            var comments = await _context.Comment
+                .Where(c => c.PostId == post.PostId)
+                .OrderByDescending(c => c.CreatedDate)
+                .ToListAsync();
 
             var fullPost = new DetailsModel { Post = post, Comments = comments };
             return View(fullPost);
@@ -164,14 +175,29 @@ namespace SelenicSparkApp.Controllers
         [HttpPost, ActionName("Comment")]
         public async Task<IActionResult> PostComment([Bind("PostId, Author, Text")] Comment partialComment)
         {
-            if (string.IsNullOrWhiteSpace(partialComment.Text) || string.IsNullOrWhiteSpace(partialComment.Author))
+            // Post indexing starts at 1; '0' is a default INT value when no other value been provided
+            if (partialComment.PostId == 0) 
             {
                 return BadRequest();
             }
 
+            if (string.IsNullOrWhiteSpace(partialComment.Text) || string.IsNullOrWhiteSpace(partialComment.Author))
+            {
+                return RedirectToAction(nameof(Details), new { id = partialComment.PostId });
+            }
+
+            if (partialComment.Author.Length < MinCommentLen)
+            {
+                return BadRequest();
+            }
+
+            if (partialComment.Text.Length > MaxCommentLen)
+            {
+                partialComment.Text = partialComment.Text[0..MaxCommentLen];
+            }
+
             var comment = new Comment
             {
-                CommentId = "",
                 PostId = partialComment.PostId,
                 Author = partialComment.Author,
                 Text = partialComment.Text,
@@ -181,6 +207,33 @@ namespace SelenicSparkApp.Controllers
             await _context.SaveChangesAsync();
 
             return RedirectToAction(nameof(Details), new { id = partialComment.PostId });
+        }
+
+        public async Task<IActionResult> DeleteComment(int? cid, int? pid, bool? WarnUser)
+        {
+            if (cid == null || cid == 0)
+            {
+                return BadRequest();
+            }
+            if (pid == null || pid == 0)
+            {
+                return BadRequest();
+            }
+
+            var comment = await _context.Comment.FindAsync(cid);
+            if (comment != null)
+            {
+                _logger.LogInformation($"User \"{User.Identity?.Name}\" deleted comment: cid={cid} pid={pid}");
+                _context.Comment.Remove(comment);
+                await _context.SaveChangesAsync();
+            }
+
+            if (WarnUser == true)
+            {
+                //todo
+            }
+
+            return RedirectToAction(nameof(Details), new { id = pid });
         }
 
         // GET: Posts/Create
@@ -201,18 +254,25 @@ namespace SelenicSparkApp.Controllers
             // Double checking so people with Postman and other tools won't make a mess
             if (string.IsNullOrWhiteSpace(post.Title) || string.IsNullOrWhiteSpace(post.Author))
             {
-                return BadRequest();
+                return View(post);
             }
-            if (post.Title.Length < 4 || post.Title.Length > 300)
+            
+            if (post.Title.Length < MinPostTitleLen)
             {
-                return BadRequest();
+                return View(post);
+            }          
+            if (post.Title.Length > MaxTitleLen)
+            {
+                post.Title = post.Title[0..MaxTitleLen];
             }
+
             if (post.Text?.Length > MaxPostLen)
             {
-                return BadRequest();
+                post.Text = post.Text[0..MaxPostLen];
             }
+
             if (ModelState.IsValid)
-            {
+            { 
                 post.CreatedDate = DateTimeOffset.UtcNow;
                 if (!string.IsNullOrWhiteSpace(post.Text)) // Text will be processed regardless, Post.Text is nullable
                 {

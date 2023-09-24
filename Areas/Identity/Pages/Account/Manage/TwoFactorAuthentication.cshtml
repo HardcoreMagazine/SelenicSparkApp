@@ -61,8 +61,6 @@
             </div>
         </div>
 
-        @* Not sure why ASP.NET MVC developers decided it's a good idea to 
-        sepearate users who never had 2FA enabled from rest of the database *@
         @if (!Model.HasAuthenticator) 
         {
             <a id="enable-authenticator" asp-page="./EnableAuthenticator" class="btn btn-primary" style="width:23.4rem;">

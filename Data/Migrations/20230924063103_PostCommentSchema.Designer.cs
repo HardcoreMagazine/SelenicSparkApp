@@ -12,8 +12,8 @@ using SelenicSparkApp.Data;
 namespace SelenicSparkApp.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230923075301_CommentSchema")]
-    partial class CommentSchema
+    [Migration("20230924063103_PostCommentSchema")]
+    partial class PostCommentSchema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -229,8 +229,11 @@ namespace SelenicSparkApp.Data.Migrations
 
             modelBuilder.Entity("SelenicSparkApp.Models.Comment", b =>
                 {
-                    b.Property<string>("CommentId")
-                        .HasColumnType("nvarchar(450)");
+                    b.Property<int>("CommentId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("CommentId"));
 
                     b.Property<string>("Author")
                         .IsRequired()

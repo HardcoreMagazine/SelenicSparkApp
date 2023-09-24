@@ -3,40 +3,46 @@
 <link rel="stylesheet" href="~/css/Comments.css" />
 
 <div>
-    <div>
+    <div class="comment-input">
         <form asp-action="Comment">
             <input type="hidden" name="PostId" value="@Model.Post.PostId"/>
             <input type="hidden" name="Author" value="@User.Identity?.Name"/>
-            <textarea name="Text"></textarea>
-            <br />
-            <input type="submit" value="Comment" class="btn btn-primary" />
+            <textarea name="Text" minlength="4" maxlength="3000" id="tbx" required></textarea>
+            <div class="flexbutton">
+                <input type="submit" value="Comment" class="btn btn-primary"/>
+            </div>
         </form>
     </div>
+    <hr />
     @if (Model.Comments?.Count > 0)
     {
-        <div class="comment-box">
+        <div class="comments-box">
             @foreach (var comment in Model.Comments)
             {
-                <div class="comment">
-                    <strong>@comment.Author</strong>
-                    <p>@comment.Text</p>
-                    <div class="group-line margin-line-1">
-                        <p class="small-text">Posted on @comment.CreatedDate.ToString("HH:mm dd.MM.yyyy")</p>
-                        @if (User.Identity?.Name == comment.Author)
-                        {
-                            <form asp-action="DeleteComment">
-                                <input type="hidden" value="@comment.CommentId" />
-                                <input type="submit" value="Delete" class="btn btn-danger btn-micro" />
-                            </form>
-                        }
-                        @if (User.IsInRole("Admin") || User.IsInRole("Moderator"))
-                        {
-                            <form asp-action="DeleteComment">
-                                <input type="hidden" value="@comment.CommentId" />
-                                <input type="hidden" name="GiveWarning" value="true"/>
-                                <input type="submit" value="Delete & Warn" class="btn btn-danger btn-micro" />
-                            </form>
-                        }
+                <div class="comment-box">
+                    <div class="comment">
+                        <strong>@comment.Author</strong>
+                        <p>@comment.Text</p>
+                        <div class="group-line">
+                            <i class="small-text">Posted on @comment.CreatedDate.ToString("HH:mm dd.MM.yyyy") UTC</i>
+                            @if (User.Identity?.Name == comment.Author || User.IsInRole("Admin") || User.IsInRole("Moderator"))
+                            {
+                                <form asp-action="DeleteComment">
+                                    <input type="hidden" name="cid" value="@comment.CommentId" />
+                                    <input type="hidden" name="pid" value="@comment.PostId" />
+                                    <input type="submit" value="Delete" class="btn btn-micro" />
+                                </form>
+                            }
+                            @if (User.IsInRole("Admin") || User.IsInRole("Moderator"))
+                            {
+                                <form asp-action="DeleteComment">
+                                    <input type="hidden" name="cid" value="@comment.CommentId" />
+                                    <input type="hidden" name="pid" value="@comment.PostId" />
+                                    <input type="hidden" name="GiveWarning" value="true" />
+                                    <input type="submit" value="Delete & Warn" class="btn btn-micro" />
+                                </form>
+                            }
+                        </div>
                     </div>
                 </div>       
             }
@@ -44,6 +50,8 @@
     }
     else
     {
-        <div>No one commented on this topic yet. Be first!</div>
+        <div style="text-align:center; margin-top:20px;">
+            No one commented on this topic yet. Be first!
+        </div>
     }
 </div>

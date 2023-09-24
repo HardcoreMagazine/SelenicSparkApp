@@ -9,7 +9,7 @@
 <div>
     <div>
         <h1>@Model.Post.Title</h1>
-        By <i>@Model.Post.Author</i> at @Model.Post.CreatedDate.ToString("HH:mm dd.MM.yyyy")
+        By <i>@Model.Post.Author</i> at @Model.Post.CreatedDate.ToString("HH:mm dd.MM.yyyy") UTC
         <hr />
         @Html.Raw(Model.Post.Text)
     </div>
@@ -25,11 +25,17 @@
         }
         <a asp-action="Index" class="btn btn-secondary height-1">Back to all posts</a> 
     </div>
-    <br />
-    <div>
-        <h4>Comments</h4>
-        <div>
-            @await Html.PartialAsync("Comments/_CommentsPartial", Model)
-        </div>
+    <div style="margin-top:30px;">
+        <h4 style="text-align: center;">Discussion</h4>
+        @await Html.PartialAsync("Comments/_CommentsPartial", Model)
     </div>
 </div>
+
+@*
+    Code in this section wouldn't work in '_CommentsPartial'
+    because of how rendering ordered in program (my best guess)
+*@
+@section Scripts {
+    <script src="~/lib/autosize/dist/autosize.min.js"></script>
+    <script src="~/js/autosizeinput.js"></script>
+}

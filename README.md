@@ -28,6 +28,9 @@ Ready to deploy forum/blog web app written on C# using ASP.NET Core MVC, EFC, MS
 ## Permissions table (per role):
 WIP
 
+## Known problems:
+- Some UI parts might be misaligned on mobile devices with small screens
+
 ## License:
 **[Apache 2.0 License](LICENSE)**
 ```

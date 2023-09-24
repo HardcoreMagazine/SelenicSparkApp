@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace SelenicSparkApp.Data.Migrations
 {
     /// <inheritdoc />
-    public partial class CommentSchema : Migration
+    public partial class PostCommentSchema : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,7 +15,8 @@ namespace SelenicSparkApp.Data.Migrations
                 name: "Comment",
                 columns: table => new
                 {
-                    CommentId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    CommentId = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     PostId = table.Column<int>(type: "int", nullable: false),
                     Text = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Author = table.Column<string>(type: "nvarchar(max)", nullable: false),
