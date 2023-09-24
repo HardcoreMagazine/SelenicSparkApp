@@ -24,7 +24,7 @@ Ready to deploy forum/blog web app written on C# using ASP.NET Core MVC, EFC, MS
 - Search for users
 - Moving project to MySQL + WebAPI + React
 - Live website sample
-- MVVC/microservice architecture (?)
+- MVVM/microservice architecture (?)
 
 ## Permissions table (per role):
 WIP
