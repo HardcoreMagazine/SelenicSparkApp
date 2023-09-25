@@ -1,0 +1,78 @@
+﻿@{
+    ViewData["Title"] = "Formatting Guide";
+}
+
+<link rel="stylesheet" href="~/css/FormattingGuide.css" />
+
+<div class="centered">
+    <div>
+        <table>
+            <thead>
+                <tr>
+                    <td>
+                        INPUT
+                    </td>
+                    <td>
+                        RESULT
+                    </td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>*I am a content creator*</td>
+                    <td><i>I am a content creator</i></td>
+                </tr>
+                <tr>
+                    <td>**I am a content creator**</td>
+                    <td><strong>I am a content creator</strong></td>
+                </tr>
+                <tr>
+                    <td>***I am a content creator***</td>
+                    <td><strong><i>I am a content creator</i></strong></td>
+                </tr>
+                <tr>
+                    <td>~~I am a content creator~~</td>
+                    <td><strike>I am a content creator</strike></td>
+                </tr>
+                <tr>
+                    <td># Header 1</td>
+                    <td><h1>Header 1</h1></td>
+                </tr>
+                <tr>
+                    <td>## Header 2</td>
+                    <td><h2>Header 2</h2></td>
+                </tr>
+                <tr>
+                    <td>### Header 3</td>
+                    <td><h3>Header 3</h3></td>
+                </tr>
+                <tr>
+                    <td>[Any Text](url)</td>
+                    <td><a href="/Posts/FormattingGuide">Any text</a></td>
+                </tr>
+                <tr>
+                    <td>![](image_url)</td>
+                    <td><img alt="Example image here" /></td>
+                </tr>
+                <tr>
+                    <td>* unmarked list</td>
+                    <td><ul class="ctr"><li class="ctr">unmarked list</li></ul></td>
+                </tr>
+                <tr>
+                    <td>1. numbered list</td>
+                    <td><ol class="ctr"><li class="ctr">numbered list</li></ol></td>
+                </tr>
+                <tr>
+                    <td>> Quote text</td>
+                    <td><div class="container blockquote ctr">Quote text</div></td>
+                </tr>
+                <tr>
+                    <td>```Example code```</td>
+                    <td><pre class="ctr"><code>Example code</code></pre></td>
+                </tr>
+            </tbody>
+        </table>
+        <p class="centered margin-top-20"><strong>Embedded Youtube links are supported</strong></p>
+        <p class="centered"><strong>New line is created by 2 spaces and Enter key</strong></p>
+    </div>
+</div>

@@ -1,12 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using System.Text.RegularExpressions;
 using Markdig;
+using ReverseMarkdown;
 using SelenicSparkApp.Data;
 using SelenicSparkApp.Models;
-using ReverseMarkdown;
-using System.Text.RegularExpressions;
-using Microsoft.AspNetCore.Identity;
 using SelenicSparkApp.Views.Posts;
 
 namespace SelenicSparkApp.Controllers
@@ -75,6 +75,12 @@ namespace SelenicSparkApp.Controllers
 
                 return View(posts);
             }
+        }
+
+        // GET: FormattingGuide
+        public IActionResult FormattingGuide()
+        {
+            return View();
         }
 
         // GET: Posts/Search
@@ -170,7 +176,7 @@ namespace SelenicSparkApp.Controllers
             return View(fullPost);
         }
 
-        // POST: Post/Details -- comment
+        // POST: Post/Details -- add comment
         [Authorize]
         [HttpPost, ActionName("Comment")]
         public async Task<IActionResult> PostComment([Bind("PostId, Author, Text")] Comment partialComment)
@@ -209,7 +215,10 @@ namespace SelenicSparkApp.Controllers
             return RedirectToAction(nameof(Details), new { id = partialComment.PostId });
         }
 
-        public async Task<IActionResult> DeleteComment(int? cid, int? pid, bool? WarnUser)
+        // POST: Post/Details -- del comment
+        [Authorize]
+        [HttpPost]
+        public async Task<IActionResult> DeleteComment(int? cid, int? pid, bool? GiveWarning)
         {
             if (cid == null || cid == 0)
             {
@@ -223,14 +232,23 @@ namespace SelenicSparkApp.Controllers
             var comment = await _context.Comment.FindAsync(cid);
             if (comment != null)
             {
-                _logger.LogInformation($"User \"{User.Identity?.Name}\" deleted comment: cid={cid} pid={pid}");
+                if (comment.Author != User.Identity?.Name & !User.IsInRole("Admin") & !User.IsInRole("Moderator"))
+                {
+                    return Forbid();
+                }
+
+                if (GiveWarning == true)
+                {
+                    var user = await _userMgr.FindByNameAsync(comment.Author);
+                    if (user != null)
+                    {
+                        await WarnUser(user);
+                    }
+                }
+
+                _logger.LogInformation($"User '{User.Identity?.Name}' deleted comment: cid={cid} pid={pid}");
                 _context.Comment.Remove(comment);
                 await _context.SaveChangesAsync();
-            }
-
-            if (WarnUser == true)
-            {
-                //todo
             }
 
             return RedirectToAction(nameof(Details), new { id = pid });
@@ -276,7 +294,13 @@ namespace SelenicSparkApp.Controllers
                 post.CreatedDate = DateTimeOffset.UtcNow;
                 if (!string.IsNullOrWhiteSpace(post.Text)) // Text will be processed regardless, Post.Text is nullable
                 {
+                    // Strip all javascript input
+                    // Alternative pattens (all tested on 2 simple scripts):
+                    // @"(?s)<\s?script.*?(/\s?>|<\s?/\s?script\s?>)"
+                    // @"(?s)<script.*?(/>|</script>)"
+                    post.Text = Regex.Replace(post.Text, @"<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>", "", RegexOptions.IgnoreCase);
                     var pipeline = new MarkdownPipelineBuilder()
+                        .UseEmphasisExtras() // Strikethrough support
                         .UseBootstrap()
                         .UseEmojiAndSmiley(false)
                         .Build();
@@ -285,7 +309,7 @@ namespace SelenicSparkApp.Controllers
                 _context.Post.Add(post);
                 await _context.SaveChangesAsync();
 
-                _logger.LogInformation($"User \"{User.Identity?.Name}\" CREATED post: \"{post.Title}\". ");
+                _logger.LogInformation($"User '{User.Identity?.Name}' CREATED post: '{post.Title}'. ");
                 return RedirectToAction(nameof(Details), routeValues: new { id = post.PostId });
             }
             return View(post); // Return to self
@@ -333,8 +357,6 @@ namespace SelenicSparkApp.Controllers
         }
 
         // POST: Posts/Edit
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -352,6 +374,11 @@ namespace SelenicSparkApp.Controllers
             }
             else
             {
+                if (post.Author != User.Identity?.Name && !User.IsInRole("Admin") && !User.IsInRole("Moderator"))
+                {
+                    return Forbid();
+                }
+                
                 // Process Title (4 < len < 300, not null)
                 if (!string.IsNullOrWhiteSpace(partialPost.Title))
                 {
@@ -368,7 +395,14 @@ namespace SelenicSparkApp.Controllers
                     {
                         partialPost.Text = partialPost.Text[..MaxPostLen]; // .Substring(0, MaxPostLen);
                     }
+                    // Strip all javascript input
+                    // Alternative pattens (all tested on 2 simple scripts):
+                    // @"(?s)<\s?script.*?(/\s?>|<\s?/\s?script\s?>)"
+                    // @"(?s)<script.*?(/>|</script>)"
+                    partialPost.Text = Regex.Replace(partialPost.Text, @"<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>", "", RegexOptions.IgnoreCase);
+
                     var pipeline = new MarkdownPipelineBuilder()
+                        .UseEmphasisExtras()
                         .UseBootstrap()
                         .UseEmojiAndSmiley(false)
                         .Build();
@@ -381,36 +415,14 @@ namespace SelenicSparkApp.Controllers
                     var user = await _userMgr.FindByNameAsync(post.Author);
                     if (user != null)
                     {
-                        var roles = await _userMgr.GetRolesAsync(user);
-                        // Users with 'Admin' and 'Moderator' role will not recieve any warnings
-                        if (roles != null && !(roles.Contains("Admin") || roles.Contains("Moderator")))
-                        {
-                            var userExtra = await _context.IdentityUserExpander.FindAsync(user.Id);
-                            // Cannot be null since user logged in at least once and posted something
-                            // But since we're using visual studio and I'm annoyed by curvy underline...
-                            if (userExtra != null)
-                            {
-                                userExtra.UserWarningsCount += 1;
-                                // Ban user for 7d on every fifth warning
-                                if (userExtra.UserWarningsCount != 0 & userExtra.UserWarningsCount % 5 == 0)
-                                {
-                                    user.LockoutEnd = DateTime.UtcNow.AddDays(7);
-                                }
-                                await _userMgr.UpdateAsync(user); // We probably don't need that. Probably.
-                                _logger.LogInformation($"User \"{User.Identity?.Name}\" WARNED user: \"{post.Author}\". ");
-                            }
-                        }
-                        else
-                        {
-                            _logger.LogInformation($"User \"{User.Identity?.Name}\" tried to WARN user: \"{post.Author}\". ");
-                        }
+                        await WarnUser(user);
                     }
                 }
 
                 post.Text = partialPost.Text;
                 _context.Post.Update(post);
                 await _context.SaveChangesAsync();
-                _logger.LogInformation($"User \"{User.Identity?.Name}\" EDITED post: \"{post.Title}\". ");
+                _logger.LogInformation($"User '{User.Identity?.Name}' EDITED post: '{post.Title}'. ");
                 return RedirectToAction(nameof(Details), new { id = partialPost.PostId });
             }
         }
@@ -456,7 +468,7 @@ namespace SelenicSparkApp.Controllers
                 return NotFound();
             }
 
-            if (post.Author != User.Identity?.Name & !User.IsInRole("Admin") & !User.IsInRole("Moderator"))
+            if (post.Author != User.Identity?.Name && !User.IsInRole("Admin") && !User.IsInRole("Moderator"))
             {
                 return Forbid();
             }
@@ -467,34 +479,12 @@ namespace SelenicSparkApp.Controllers
                 var user = await _userMgr.FindByNameAsync(post.Author);
                 if (user != null)
                 {
-                    var roles = await _userMgr.GetRolesAsync(user);
-                    // Users with 'Admin' and 'Moderator' role will not recieve any warnings
-                    if (roles != null && !(roles.Contains("Admin") || roles.Contains("Moderator")))
-                    {
-                        var userExtra = await _context.IdentityUserExpander.FindAsync(user.Id);
-                        // Cannot be null since user logged in at least once and posted something
-                        // But since we're using visual studio and I'm annoyed by curvy underline...
-                        if (userExtra != null) 
-                        {
-                            userExtra.UserWarningsCount += 1;
-                            // Ban user for 7d on every fifth warning
-                            if (userExtra.UserWarningsCount != 0 & userExtra.UserWarningsCount % 5 == 0)
-                            {
-                                user.LockoutEnd = DateTime.UtcNow.AddDays(7);
-                            }
-                            await _userMgr.UpdateAsync(user); // We probably don't need that. Probably.
-                            _logger.LogInformation($"User \"{User.Identity?.Name}\" WARNED user: \"{post.Author}\". ");
-                        }
-                    }
-                    else
-                    {
-                        _logger.LogInformation($"User \"{User.Identity?.Name}\" tried to WARN user: \"{post.Author}\". ");
-                    }
+                    await WarnUser(user);
                 }
             }
             _context.Post.Remove(post);
             await _context.SaveChangesAsync();
-            _logger.LogInformation($"User \"{User.Identity?.Name}\" DELETED post: \"{post.Title}\". ");
+            _logger.LogInformation($"User '{User.Identity?.Name}' DELETED post: '{post.Title}'. ");
             return RedirectToAction(nameof(Index));
         }
 
@@ -518,6 +508,48 @@ namespace SelenicSparkApp.Controllers
                         }
                     }
                 }
+            }
+        }
+
+        /// <summary>
+        /// Attempt to add warning to user's IdentityUserExpander entry
+        /// </summary>
+        /// <param name="user">Target user</param>
+        private async Task WarnUser(IdentityUser user)
+        {
+            if (!User.IsInRole("Admin") && !User.IsInRole("Moderator"))
+            {
+                return;
+            }
+
+            var roles = await _userMgr.GetRolesAsync(user);
+            bool allowWarning = 
+                roles == null || 
+                (roles != null && roles.Contains("Moderator") && User.IsInRole("Admin")) || 
+                (roles != null && roles.Contains("User"));
+
+            if (allowWarning)
+            {
+                var userExtra = await _context.IdentityUserExpander.FindAsync(user.Id);
+                if (userExtra == null)
+                {
+                    _logger.LogWarning($"User '{User.Identity?.Name} tried to WARN user {user.UserName}, " +
+                        $"but 'IdentityUserExpander' entry was not found");
+                    return;
+                }
+                userExtra.UserWarningsCount += 1;
+                // Ban user for 7d on every fifth warning
+                if (userExtra.UserWarningsCount != 0 & userExtra.UserWarningsCount % 5 == 0)
+                {
+                    user.LockoutEnd = DateTime.UtcNow.AddDays(7);
+                    await _userMgr.UpdateAsync(user);
+                    _logger.LogInformation($"User '{User.Identity?.Name}' WARNED user: '{user.UserName}', which resulted in 7d ban. ");
+                }
+                else
+                {
+                    _logger.LogInformation($"User '{User.Identity?.Name}' WARNED user: '{user.UserName}'. ");
+                }
+                _context.IdentityUserExpander.Update(userExtra); // Changes saved outside func
             }
         }
     }
