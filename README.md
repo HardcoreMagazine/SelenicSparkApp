@@ -27,7 +27,7 @@ Ready to deploy forum/blog web app written on C# using ASP.NET Core MVC, EFC, MS
 - Live website sample
 
 ## Permissions table (per controller):
-WIP
+![](permissions_table.png)  
 
 ## Known problems:
 - Some UI parts might be misaligned on mobile devices with small screens
