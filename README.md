@@ -24,7 +24,7 @@ Ready to deploy forum/blog web app written on C# using ASP.NET Core MVC, EFC, MS
 - User profile page (users)
 - Search for users
 - MVVM/microservice architecture (?)
-- Live website sample
+- Live website sample  
 
 ## Permissions table (per controller):
 ![](permissions_table.png)  

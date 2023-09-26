@@ -3,6 +3,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SelenicSparkApp.Models
 {
+    /// <summary>
+    /// Primary model for Post views & database
+    /// </summary>
     public class Post
     {
         [Key]

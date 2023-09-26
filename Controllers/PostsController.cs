@@ -84,7 +84,7 @@ namespace SelenicSparkApp.Controllers
         }
 
         // GET: Posts/Search
-        public IActionResult Search()
+        public IActionResult Search() // TODO: multi-page view
         {
             // Initialize input values
             ViewBag.SearchPhrase = "";
@@ -93,7 +93,7 @@ namespace SelenicSparkApp.Controllers
         }
 
         // POST: Posts/SearchResults
-        public async Task<IActionResult> SearchResults(string SearchPhrase, string Filter)
+        public async Task<IActionResult> SearchResults(string SearchPhrase, string Filter) // TODO: multi-page view
         {
             // Save-set last form state (works like magic)
             // ViewBag would still reset if page is reloaded, obviously
@@ -262,8 +262,6 @@ namespace SelenicSparkApp.Controllers
         }
 
         // POST: Posts/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]

@@ -19,7 +19,7 @@ namespace SelenicSparkApp.Data
         {
             base.OnModelCreating(builder);
             // Configure binding between IdentityUser and IdentityUserExpander
-            // NO you can't move it to 'Program.cs' script
+            // Would not suggest experimenting and moving this to 'Program.cs' script
             builder.Entity<IdentityUser>()
                 .HasOne<IdentityUserExpander>()
                 .WithOne()

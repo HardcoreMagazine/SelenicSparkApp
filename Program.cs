@@ -92,7 +92,7 @@ using (var scope = app.Services.CreateScope())
                 UserName = baseUsers[j].Item1,
                 Email = baseUsers[j].Item2,
                 
-                EmailConfirmed = true // ----------- DANGER ZONE -----------
+                EmailConfirmed = true // ----------- DANGER ZONE ----------- //
             };
 
             await userManager.CreateAsync(user, baseUsers[j].Item3);
