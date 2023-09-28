@@ -5,7 +5,7 @@ Ready to deploy forum/blog web app written on C# using ASP.NET Core MVC, EFC, MS
 - User authentication (including 2FA)
 - User registration
 - Role-based authorization
-- Automatic user's account lock on 5 bad login attemps (defaults to 15 minutes)
+- Automatic user's account lock on 5 bad login attempts (defaults to 15 minutes)
 - Built-in admin panel that allows to manage users and roles
 - Built-in basic moderation tools: warn user, delete post/comment, ban user
 - Built-in user account page (edit username, password)
@@ -17,7 +17,7 @@ Ready to deploy forum/blog web app written on C# using ASP.NET Core MVC, EFC, MS
 - Reset password function (because of email services)
 
 ## Planned features:
-- Moving project to MySQL + WebAPI + Vue
+- Moving project to MySQL + WebAPI + React/Vue/Angular
 - Page indexing for search posts form
 - Custom color codes for each role, stored in database
 - Toggle dark mode for all pages at any time
