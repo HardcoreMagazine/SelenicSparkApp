@@ -19,8 +19,8 @@ namespace SelenicSparkApp.Controllers
         private readonly ILogger<PostsController> _logger;
 
         private const int MinPostTitleLen = 4;
-        private const int MaxTitleLen = 300;
-        private const int MaxPostLen = 20_000;
+        private const int MaxPostTitleLen = 300;
+        private const int MaxPostTextLen = 20_000;
 
         private const int MinCommentLen = 3;
         private const int MaxCommentLen = 3000;
@@ -277,14 +277,14 @@ namespace SelenicSparkApp.Controllers
             {
                 return View(post);
             }          
-            if (post.Title.Length > MaxTitleLen)
+            if (post.Title.Length > MaxPostTitleLen)
             {
-                post.Title = post.Title[0..MaxTitleLen];
+                post.Title = post.Title[0..MaxPostTitleLen];
             }
 
-            if (post.Text?.Length > MaxPostLen)
+            if (post.Text?.Length > MaxPostTextLen)
             {
-                post.Text = post.Text[0..MaxPostLen];
+                post.Text = post.Text[0..MaxPostTextLen];
             }
 
             if (ModelState.IsValid)
@@ -389,9 +389,9 @@ namespace SelenicSparkApp.Controllers
                 if (!string.IsNullOrWhiteSpace(partialPost.Text))
                 {
                     // Trim if exeeds maximum length
-                    if (partialPost.Text.Length > MaxPostLen)
+                    if (partialPost.Text.Length > MaxPostTextLen)
                     {
-                        partialPost.Text = partialPost.Text[..MaxPostLen]; // .Substring(0, MaxPostLen);
+                        partialPost.Text = partialPost.Text[..MaxPostTextLen]; // .Substring(0, MaxPostLen);
                     }
                     // Strip all javascript input
                     // Alternative pattens (all tested on 2 simple scripts):
