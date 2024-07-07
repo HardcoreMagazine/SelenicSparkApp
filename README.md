@@ -17,7 +17,7 @@ Ready to deploy forum/blog web app written on C# using ASP.NET Core MVC, EFC, MS
 - Reset password function (because of email services)
 
 ## Planned features:
-- Moving project to MySQL + WebAPI + React/Vue/Angular - [in progress](https://github.com/HardcoreMagazine/SelenicSparkApp_v2_WebAPI)
+- Moving project to MySQL + WebAPI + React/Vue/Angular - [abandoned, doing v3 now, with microservices](https://github.com/HardcoreMagazine/SelenicSparkApp3)
 - Page indexing for search posts form
 - Custom color codes for each role, stored in database
 - Toggle dark mode for all pages at any time
